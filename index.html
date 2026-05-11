@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<title>Highway Escape</title>
+<title>Highway Escape v2</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -14,14 +14,10 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:'Rajdhani',sans-serif;overflow:hidden;width:100vw;height:100vh;touch-action:none;user-select:none}
 canvas#gc{position:fixed;inset:0;width:100%;height:100%;z-index:1}
-
-/* ── OVERLAYS ── */
 .ov{position:fixed;inset:0;z-index:10;pointer-events:none;display:none}
 .ov.on{pointer-events:auto;display:block}
 .sc{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;position:absolute;inset:0}
 .sc.on{display:flex}
-
-/* ── MENU ── */
 #menuSc{background:radial-gradient(ellipse at 50% 80%,rgba(0,255,240,0.06),transparent 65%),linear-gradient(180deg,rgba(5,5,16,.97),rgba(5,5,16,.99))}
 .gt{font-family:'Orbitron',monospace;font-size:clamp(2rem,7vw,4.5rem);font-weight:900;letter-spacing:.08em;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.15em;animation:gp 3s ease-in-out infinite}
 @keyframes gp{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35)}}
@@ -34,8 +30,6 @@ canvas#gc{position:fixed;inset:0;width:100%;height:100%;z-index:1}
 .bt.g:hover{background:rgba(255,170,0,.18);box-shadow:0 0 22px rgba(255,170,0,.28)}
 .bt.s{font-size:.65rem;padding:.4em 1em;min-width:auto}
 .hs{font-family:'Orbitron',monospace;font-size:.78rem;color:var(--gold);margin-top:.8em;letter-spacing:.1em}
-
-/* ── HUD ── */
 #hudOv{z-index:20;pointer-events:none;padding:8px}
 .ht{display:flex;justify-content:space-between;align-items:flex-start;padding:0 3px;gap:6px;flex-wrap:wrap}
 .hl{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
@@ -55,6 +49,7 @@ canvas#gc{position:fixed;inset:0;width:100%;height:100%;z-index:1}
 .bf.hp{background:linear-gradient(90deg,#ff0044,#ff4477)}
 .bf.ni{background:linear-gradient(90deg,#0066ff,#00fff0)}
 .bf.xp{background:linear-gradient(90deg,#00cc66,#00ff88)}
+.bf.sh{background:linear-gradient(90deg,#aa00ff,#ff00ff)}
 .bl{position:absolute;top:0;left:6px;font-size:.48rem;line-height:12px;font-family:'Orbitron',monospace;color:#fff;text-shadow:0 0 3px #000}
 #mmC{width:100px;height:100px;border-radius:6px;border:1px solid var(--bdr);background:rgba(0,0,0,.5)}
 #nArea{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none;z-index:25}
@@ -67,8 +62,23 @@ canvas#gc{position:fixed;inset:0;width:100%;height:100%;z-index:1}
 .cl{font-size:clamp(.55rem,1.3vw,.8rem);color:var(--fg);letter-spacing:.2em;opacity:.7}
 #drB{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',monospace;font-size:clamp(.75rem,1.8vw,1rem);color:var(--gold);text-shadow:0 0 12px rgba(255,170,0,.5);pointer-events:none;opacity:0;transition:opacity .18s}
 #drB.sh{opacity:1}
-
-/* ── EFFECTS ── */
+/* Mission HUD */
+#msnHud{position:absolute;top:52px;right:8px;background:var(--card);border:1px solid rgba(0,255,240,.25);border-radius:6px;padding:8px 10px;font-family:'Orbitron',monospace;font-size:.6rem;min-width:160px;pointer-events:none}
+#msnHud.hid{display:none}
+.msnT{color:var(--gold);font-size:.65rem;font-weight:700;margin-bottom:4px}
+.msnD{color:#aabbcc;margin-bottom:6px;font-size:.58rem}
+.msnPW{height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden}
+.msnP{height:100%;background:linear-gradient(90deg,var(--gold),#ff6600);border-radius:3px;transition:width .3s}
+/* Biome indicator */
+#biomeInd{position:absolute;bottom:110px;left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-size:.65rem;color:#8899bb;opacity:0;transition:opacity 1s;letter-spacing:.2em;text-transform:uppercase}
+#biomeInd.sh{opacity:1}
+/* Power-up display */
+#puDisp{position:absolute;top:48px;left:8px;display:flex;flex-direction:column;gap:4px;pointer-events:none}
+.puItem{font-family:'Orbitron',monospace;font-size:.58rem;background:var(--card);border:1px solid var(--bdr);border-radius:4px;padding:3px 8px;display:flex;gap:6px;align-items:center}
+.puItem .pui{font-size:.85rem}
+.puItem .put{color:var(--ac)}
+/* Day/night indicator */
+#dnInd{position:absolute;top:8px;left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-size:.55rem;color:#4a5580;letter-spacing:.2em;pointer-events:none}
 .df{position:fixed;inset:0;background:radial-gradient(ellipse,transparent 30%,rgba(255,0,50,.32));z-index:15;pointer-events:none;opacity:0;transition:opacity .1s}
 .df.sh{opacity:1}
 .nv{position:fixed;inset:0;background:radial-gradient(ellipse,transparent 50%,rgba(0,80,255,.18));z-index:14;pointer-events:none;opacity:0;transition:opacity .18s}
@@ -77,8 +87,6 @@ canvas#gc{position:fixed;inset:0;width:100%;height:100%;z-index:1}
 .sm.sh{opacity:1}
 .fc{position:fixed;top:4px;left:4px;font-family:'Orbitron',monospace;font-size:.52rem;color:#4a5580;z-index:30;pointer-events:none;opacity:0}
 .fc.sh{opacity:1}
-
-/* ── GARAGE ── */
 #grSc{background:rgba(5,5,16,.96);padding:16px;overflow-y:auto}
 .grt{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:var(--ac);margin-bottom:.4em;letter-spacing:.1em}
 .gri{display:flex;gap:20px;margin-bottom:1.2em;font-family:'Orbitron',monospace;font-size:.82rem;flex-wrap:wrap;justify-content:center}
@@ -95,8 +103,6 @@ canvas#gc{position:fixed;inset:0;width:100%;height:100%;z-index:1}
 .sf{height:100%;border-radius:2px}
 .cco{font-family:'Orbitron',monospace;font-size:.72rem;color:var(--gold);margin-top:8px}
 .ceq{font-family:'Orbitron',monospace;font-size:.62rem;color:var(--ac);margin-top:4px}
-
-/* ── SETTINGS ── */
 #stSc{background:rgba(5,5,16,.96)}
 .stt{font-family:'Orbitron',monospace;font-size:1.6rem;font-weight:900;color:var(--ac);margin-bottom:1em}
 .str{display:flex;align-items:center;gap:12px;margin:.5em 0;font-family:'Orbitron',monospace;font-size:.78rem}
@@ -104,8 +110,6 @@ canvas#gc{position:fixed;inset:0;width:100%;height:100%;z-index:1}
 .bg{display:flex;gap:4px}
 .bo{padding:4px 10px;font-family:'Orbitron',monospace;font-size:.62rem;border:1px solid var(--bdr);background:transparent;color:#4a5580;cursor:pointer;transition:all .14s}
 .bo.av{border-color:var(--ac);color:var(--ac);background:rgba(0,255,240,.1)}
-
-/* ── PAUSE / GAME OVER ── */
 #paSc{background:rgba(5,5,16,.82);backdrop-filter:blur(6px)}
 .pat{font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;color:var(--ac);margin-bottom:1em}
 #goSc{background:rgba(5,5,16,.95)}
@@ -113,8 +117,6 @@ canvas#gc{position:fixed;inset:0;width:100%;height:100%;z-index:1}
 .gos{display:flex;flex-direction:column;gap:5px;margin-bottom:1.4em;align-items:center}
 .goi{font-family:'Orbitron',monospace;font-size:.88rem;color:var(--fg)}
 .goi span{color:var(--ac);font-weight:700}
-
-/* ── TOUCH CONTROLS ── */
 .tc{position:fixed;bottom:0;left:0;right:0;z-index:22;display:none;justify-content:space-between;align-items:flex-end;padding:8px 12px;pointer-events:none}
 .tc.on{display:flex}
 .tz{pointer-events:auto;display:flex;gap:6px;align-items:flex-end}
@@ -127,7 +129,13 @@ canvas#gc{position:fixed;inset:0;width:100%;height:100%;z-index:1}
 .sz{display:flex;gap:4px;pointer-events:auto}
 .sbb{width:60px;height:60px;border-radius:10px;border:2px solid rgba(0,255,240,.22);background:rgba(0,255,240,.04);color:var(--ac);display:flex;align-items:center;justify-content:center;font-size:1.4rem;-webkit-tap-highlight-color:transparent;pointer-events:auto;font-family:'Rajdhani',sans-serif;font-weight:700}
 .sbb:active{background:rgba(0,255,240,.16)}
-
+/* Leaderboard */
+#lbSc{background:rgba(5,5,16,.96);padding:20px;overflow-y:auto}
+.lbt{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:var(--gold);margin-bottom:1em;letter-spacing:.1em}
+.lbEntry{display:flex;align-items:center;gap:12px;padding:8px 12px;margin:4px 0;background:var(--card);border:1px solid var(--bdr);border-radius:6px;font-family:'Orbitron',monospace;font-size:.75rem}
+.lbRank{color:var(--gold);width:24px}
+.lbName{flex:1;color:var(--ac)}
+.lbScore{color:var(--fg)}
 @media(max-width:600px){.cg{grid-template-columns:1fr}.bt{min-width:148px;padding:.5em 1.4em}}
 </style>
 </head>
@@ -142,9 +150,10 @@ canvas#gc{position:fixed;inset:0;width:100%;height:100%;z-index:1}
 <div class="ov on" id="menuOv">
 <div class="sc on" id="menuSc">
   <div class="gt">HIGHWAY ESCAPE</div>
-  <div class="gs">Outrun the law</div>
+  <div class="gs">v2 · Outrun the law</div>
   <button class="bt" id="playB">▶ DRIVE</button>
   <button class="bt g" id="garB">⬡ GARAGE</button>
+  <button class="bt" id="lbB" style="border-color:#ffaa00;color:#ffaa00;background:rgba(255,170,0,.07)">🏆 LEADERBOARD</button>
   <button class="bt r" id="setB">⚙ SETTINGS</button>
   <div class="hs" id="hsD">BEST: 0</div>
 </div></div>
@@ -159,13 +168,24 @@ canvas#gc{position:fixed;inset:0;width:100%;height:100%;z-index:1}
     <div class="lb">LV <span id="hLv">1</span></div>
   </div>
   <div class="hr">
+    <div id="dnInd">☀ DAY</div>
     <div class="st">HEAT <span class="hst" id="hHt"></span></div>
     <button class="bt s" id="paB" style="margin:0;pointer-events:auto">⏸</button>
   </div>
 </div>
+<!-- Mission HUD -->
+<div id="msnHud" class="hid">
+  <div class="msnT" id="msnTitle">MISSION</div>
+  <div class="msnD" id="msnDesc">-</div>
+  <div class="msnPW"><div class="msnP" id="msnProg" style="width:0%"></div></div>
+</div>
+<!-- Power-up display -->
+<div id="puDisp"></div>
 <div id="nArea"></div>
 <div id="cdB"><div class="cm" id="cdM">x1.0</div><div class="cl">COMBO</div></div>
 <div id="drB">DRIFT 0.0s</div>
+<!-- Biome indicator -->
+<div id="biomeInd"></div>
 <div class="hb">
   <canvas id="mmC" width="100" height="100"></canvas>
   <div class="gw">
@@ -174,6 +194,7 @@ canvas#gc{position:fixed;inset:0;width:100%;height:100%;z-index:1}
       <div class="bw"><div class="bf hp" id="hpB" style="width:100%"></div><span class="bl">HP</span></div>
       <div class="bw"><div class="bf ni" id="niB" style="width:100%"></div><span class="bl">N2O</span></div>
       <div class="bw"><div class="bf xp" id="xpB" style="width:0%"></div><span class="bl">XP</span></div>
+      <div class="bw"><div class="bf sh" id="shB" style="width:0%"></div><span class="bl">SHD</span></div>
     </div>
   </div>
   <div style="width:100px"></div>
@@ -189,6 +210,14 @@ canvas#gc{position:fixed;inset:0;width:100%;height:100%;z-index:1}
   </div>
   <div class="cg" id="cGrd"></div>
   <button class="bt r" id="gBk">← BACK</button>
+</div></div>
+
+<!-- LEADERBOARD -->
+<div class="ov" id="lbOv">
+<div class="sc on" id="lbSc">
+  <div class="lbt">🏆 LEADERBOARD</div>
+  <div id="lbList" style="width:100%;max-width:500px"></div>
+  <button class="bt r" id="lbBk" style="margin-top:1.5em">← BACK</button>
 </div></div>
 
 <!-- SETTINGS -->
@@ -220,6 +249,8 @@ canvas#gc{position:fixed;inset:0;width:100%;height:100%;z-index:1}
     <div class="goi">Top Speed: <span id="goSp">0</span> km/h</div>
     <div class="goi">Max Combo: <span id="goCo">x1.0</span></div>
     <div class="goi">XP Earned: <span id="goX">0</span></div>
+    <div class="goi">Missions Done: <span id="goM">0</span></div>
+    <div class="goi">Biome: <span id="goB">City</span></div>
   </div>
   <button class="bt" id="rtB">↺ RETRY</button>
   <button class="bt r" id="gmB">⌂ MENU</button>
@@ -254,13 +285,14 @@ const CFG = {
   road: { segLen: 180, width: 22, lanes: 4 },
   player: { maxSpd: 70, acc: 22, brk: 45, steer: 18, drag: 0.38, latDamp: 5, driftLatDamp: 2.1, driftSteerMul: 1.85 },
   nitro: { boost: 35, drain: 30, regen: 6 },
-  hp: { max: 100, polHit: 9, trfHit: 13, barrierHit: 7, roadblockHit: 22 },
+  hp: { max: 100, polHit: 9, trfHit: 13, barrierHit: 7, roadblockHit: 22, helicopterHit: 18 },
   police: { baseSpd: 38, spawnDist: 68 },
   traffic: { baseSpd: 16 },
   coin: { healAmt: 14, xpAmt: 4 },
   heat: { rate: 0.013, max: 5 },
   combo: { resetDelay: 2.4, decay: 0.22, nearMissBonus: 0.45, nearMissScore: 90, driftScore: 45 },
   xp: { base: 100, scale: 1.4 },
+  dayNight: { cycleDuration: 180 }, // seconds per full cycle
 };
 
 const QUALITY = [
@@ -278,6 +310,32 @@ const CARS = [
   { id:5, name:'Apex GT',       col:0xffaa00, spd:1.45, han:1.35, arm:1,    nit:1.4,  cost:3000 },
 ];
 
+// BIOMES: city → tunnel → bridge → desert highway
+const BIOMES = [
+  { name:'CITY',    fogDensity:0.007, skyTop:0x050510, skyBot:0x0a0520, ambCol:0x334466, ambInt:1.8, roadCol:0x18182e, buildingH:[8,45], neonIntensity:1.0 },
+  { name:'TUNNEL',  fogDensity:0.018, skyTop:0x000008, skyBot:0x000308, ambCol:0x221133, ambInt:0.9, roadCol:0x101018, buildingH:[0,0],  neonIntensity:1.4 },
+  { name:'BRIDGE',  fogDensity:0.005, skyTop:0x060820, skyBot:0x0a1530, ambCol:0x223355, ambInt:2.2, roadCol:0x1a1a2a, buildingH:[4,18], neonIntensity:0.7 },
+  { name:'DESERT',  fogDensity:0.004, skyTop:0x0a0820, skyBot:0x150d05, ambCol:0x443322, ambInt:1.5, roadCol:0x2a2010, buildingH:[0,10], neonIntensity:0.4 },
+];
+
+const MISSIONS = [
+  { id:'speed',  name:'SPEED DEMON',   desc:'Reach 160 km/h',    type:'speed',   target:160,  reward:200, xpReward:40 },
+  { id:'coins',  name:'COIN HUNTER',   desc:'Collect 15 coins',  type:'coins',   target:15,   reward:300, xpReward:30 },
+  { id:'near',   name:'DODGER',        desc:'5 near misses',     type:'near',    target:5,    reward:250, xpReward:35 },
+  { id:'drift',  name:'DRIFT KING',    desc:'Drift 8 seconds',   type:'drift',   target:8,    reward:280, xpReward:45 },
+  { id:'dist',   name:'ROAD WARRIOR',  desc:'Drive 2000m',       type:'dist',    target:2000, reward:200, xpReward:25 },
+  { id:'evade',  name:'GHOST',         desc:'Evade 3 roadblocks',type:'evade',   target:3,    reward:350, xpReward:50 },
+  { id:'combo',  name:'COMBO MASTER',  desc:'Reach x5 combo',    type:'combo',   target:5,    reward:400, xpReward:60 },
+];
+
+const POWERUP_TYPES = [
+  { id:'shield', name:'SHIELD',   icon:'🛡', col:0xaa00ff, duration:8,  desc:'Damage immunity' },
+  { id:'magnet', name:'MAGNET',   icon:'🧲', col:0x00aaff, duration:10, desc:'Coin magnet' },
+  { id:'turbo',  name:'TURBO',    icon:'⚡', col:0xff6600, duration:6,  desc:'+50% speed' },
+  { id:'ghost',  name:'GHOST',    icon:'👻', col:0x00ffaa, duration:7,  desc:'Pass through traffic' },
+  { id:'freeze', name:'FREEZE',   icon:'❄', col:0x88ccff, duration:5,  desc:'Freeze all cars' },
+];
+
 const NEON_COLORS = [0x00fff0, 0xff0066, 0xaa00ff, 0xff6600, 0x00ff88];
 const TRAFFIC_COLS = [0xcc3333, 0x3366cc, 0x33aa55, 0xccaa33, 0x8833aa, 0xcc6633, 0x667788, 0xaa2266];
 
@@ -293,20 +351,75 @@ const S = {
   hp: 100, nitro: 100, heat: 1, speed: 0, lateralV: 0,
   topSpeed: 0, time: 0, weatherTimer: 0, weather: 'clear',
   invTimer: 0, shakeAmt: 0,
-  combo: 1, comboTimer: 0, maxCombo: 1, driftTimer: 0, drifting: false,
+  combo: 1, comboTimer: 0, maxCombo: 1, driftTimer: 0, drifting: false, totalDrift: 0,
   xp: 0, level: 1, sessionXP: 0,
   slowScale: 1, slowTarget: 1, slowTimer: 0,
   selectedCar: 0, unlocked: [0],
   vol: 1, showFps: true,
   paused: false,
+  // Day/night
+  dayTime: 0.25, // 0=midnight, 0.25=dawn, 0.5=noon, 0.75=dusk, 1=midnight
+  // Biomes
+  currentBiome: 0, biomeProgress: 0, biomeTransition: 0,
+  // Missions
+  currentMission: null, missionProgress: 0, missionsCompleted: 0,
+  missionStats: { near: 0, evade: 0, drift: 0 },
+  // Power-ups
+  activePowerups: {}, // id → timeLeft
+  shieldHP: 0,
+  // Helicopter (heat 4+)
+  helicopterActive: false, helicopterX: 0, helicopterZ: 0, helicopterY: 20, helicopterTimer: 0,
+  helicopterSpawnTimer: 0,
+  // Spike strips (heat 3+)
+  spikeStrips: [],
+  // Ghost car replay
+  replayBuffer: [],
+  recordingReplay: true,
+  // Near misses this session
+  nearMissCount: 0,
+  // Coin magnet radius
+  magnetRadius: 0,
 };
+
+/* ═══════════════════════════════════════════
+   SPATIAL HASH GRID (O(1) collision)
+═══════════════════════════════════════════ */
+class SpatialHash {
+  constructor(cellSize = 6) {
+    this.cellSize = cellSize;
+    this.cells = new Map();
+  }
+  _key(x, z) {
+    return `${Math.floor(x / this.cellSize)},${Math.floor(z / this.cellSize)}`;
+  }
+  clear() { this.cells.clear(); }
+  insert(obj, x, z) {
+    const k = this._key(x, z);
+    if (!this.cells.has(k)) this.cells.set(k, []);
+    this.cells.get(k).push(obj);
+  }
+  query(x, z, radius = 3) {
+    const results = [];
+    const cells = Math.ceil(radius / this.cellSize);
+    for (let dx = -cells; dx <= cells; dx++) {
+      for (let dz = -cells; dz <= cells; dz++) {
+        const cx = Math.floor(x / this.cellSize) + dx;
+        const cz = Math.floor(z / this.cellSize) + dz;
+        const k = `${cx},${cz}`;
+        if (this.cells.has(k)) results.push(...this.cells.get(k));
+      }
+    }
+    return results;
+  }
+}
+const spatialHash = new SpatialHash(6);
 
 /* ═══════════════════════════════════════════
    SAVE / LOAD
 ═══════════════════════════════════════════ */
 function loadSave() {
   try {
-    const d = JSON.parse(localStorage.getItem('hwyE5') || 'null');
+    const d = JSON.parse(localStorage.getItem('hwyE6') || 'null');
     if (d) {
       S.totalCoins = d.tc || 0;
       S.unlocked = d.uc || [0];
@@ -322,22 +435,31 @@ function loadSave() {
 
 function saveSave() {
   try {
-    localStorage.setItem('hwyE5', JSON.stringify({
+    localStorage.setItem('hwyE6', JSON.stringify({
       tc: S.totalCoins, uc: S.unlocked, sc: S.selectedCar,
       lv: S.level, xp: S.xp, v: S.vol, f: S.showFps, q: QL
     }));
   } catch(e) {}
 }
 
-function getHighScore() { return parseInt(localStorage.getItem('hwyHS5') || '0'); }
-function setHighScore(s) { if (s > getHighScore()) localStorage.setItem('hwyHS5', String(s)); }
+function getHighScore() { return parseInt(localStorage.getItem('hwyHS6') || '0'); }
+function setHighScore(s) { if (s > getHighScore()) localStorage.setItem('hwyHS6', String(s)); }
+
+function getLeaderboard() {
+  try { return JSON.parse(localStorage.getItem('hwyLB6') || '[]'); } catch(e) { return []; }
+}
+function addToLeaderboard(entry) {
+  try {
+    const lb = getLeaderboard();
+    lb.push(entry);
+    lb.sort((a, b) => b.score - a.score);
+    localStorage.setItem('hwyLB6', JSON.stringify(lb.slice(0, 10)));
+  } catch(e) {}
+}
 
 loadSave();
 
-function carStat(k) {
-  const c = CARS[S.selectedCar];
-  return c[k];
-}
+function carStat(k) { return CARS[S.selectedCar][k]; }
 function xpForLevel(lv) { return Math.floor(CFG.xp.base * Math.pow(CFG.xp.scale, lv - 1)); }
 function addXP(a) {
   S.xp += a; S.sessionXP += a;
@@ -350,39 +472,28 @@ function addXP(a) {
 }
 
 /* ═══════════════════════════════════════════
-   RENDERER SETUP — Fixed for visibility
+   RENDERER SETUP
 ═══════════════════════════════════════════ */
 const canvas = document.getElementById('gc');
-
-const renderer = new THREE.WebGLRenderer({
-  canvas,
-  antialias: QL > 0,
-  powerPreference: 'high-performance',
-  alpha: false,
-});
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: QL > 0, powerPreference: 'high-performance', alpha: false });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, QL > 1 ? 2 : 1.5));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.3;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.shadowMap.enabled = false; // disabled for perf
+renderer.shadowMap.enabled = false;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x050510);
 scene.fog = new THREE.FogExp2(0x060614, 0.007);
 
-// Camera — positioned to always see the car
 const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.3, 600);
 camera.position.set(0, 7, -14);
 camera.lookAt(0, 1.5, 10);
 
-// Post-processing
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-const bloomPass = new UnrealBloomPass(
-  new THREE.Vector2(window.innerWidth, window.innerHeight),
-  Q().bloomStr, 0.35, 0.88
-);
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), Q().bloomStr, 0.35, 0.88);
 bloomPass.enabled = Q().bloom;
 composer.addPass(bloomPass);
 
@@ -394,24 +505,32 @@ window.addEventListener('resize', () => {
 });
 
 /* ═══════════════════════════════════════════
-   LIGHTS — Bright enough to see the car
+   LIGHTS
 ═══════════════════════════════════════════ */
 const ambLight = new THREE.AmbientLight(0x334466, 1.8);
 scene.add(ambLight);
-const dirLight = new THREE.DirectionalLight(0x6688cc, 1.2);
-dirLight.position.set(10, 30, 10);
-scene.add(dirLight);
-const dirLight2 = new THREE.DirectionalLight(0x221133, 0.5);
-dirLight2.position.set(-10, 10, -5);
-scene.add(dirLight2);
+const sunLight = new THREE.DirectionalLight(0x6688cc, 1.2);
+sunLight.position.set(10, 30, 10);
+scene.add(sunLight);
+const fillLight = new THREE.DirectionalLight(0x221133, 0.5);
+fillLight.position.set(-10, 10, -5);
+scene.add(fillLight);
+// Moon light (used at night)
+const moonLight = new THREE.DirectionalLight(0x334488, 0);
+moonLight.position.set(-10, 20, -5);
+scene.add(moonLight);
 
 /* ═══════════════════════════════════════════
-   SHARED MATERIALS (created once)
+   SHARED MATERIALS
 ═══════════════════════════════════════════ */
 const MAT = {
   road: new THREE.MeshLambertMaterial({ color: 0x18182e }),
   roadWet: new THREE.MeshLambertMaterial({ color: 0x101120 }),
+  roadDesert: new THREE.MeshLambertMaterial({ color: 0x2a2010 }),
+  roadTunnel: new THREE.MeshLambertMaterial({ color: 0x101018 }),
   barrier: new THREE.MeshLambertMaterial({ color: 0x2a2a3a }),
+  barrierDesert: new THREE.MeshLambertMaterial({ color: 0x443322 }),
+  barrierTunnel: new THREE.MeshLambertMaterial({ color: 0x111122 }),
   laneLine: new THREE.MeshBasicMaterial({ color: 0xffffff }),
   neonCyan: new THREE.MeshBasicMaterial({ color: 0x00fff0 }),
   neonPink: new THREE.MeshBasicMaterial({ color: 0xff0066 }),
@@ -420,6 +539,11 @@ const MAT = {
   neonGreen: new THREE.MeshBasicMaterial({ color: 0x00ff88 }),
   coin: new THREE.MeshStandardMaterial({ color: 0xffaa00, emissive: 0xff8800, emissiveIntensity: 1.5 }),
   repair: new THREE.MeshStandardMaterial({ color: 0x00ff44, emissive: 0x00aa33, emissiveIntensity: 1.5 }),
+  shield: new THREE.MeshStandardMaterial({ color: 0xaa00ff, emissive: 0x8800ff, emissiveIntensity: 2.0 }),
+  magnet: new THREE.MeshStandardMaterial({ color: 0x00aaff, emissive: 0x0066ff, emissiveIntensity: 1.8 }),
+  turbo: new THREE.MeshStandardMaterial({ color: 0xff6600, emissive: 0xff4400, emissiveIntensity: 2.0 }),
+  ghost: new THREE.MeshStandardMaterial({ color: 0x00ffaa, emissive: 0x00ffaa, emissiveIntensity: 1.6 }),
+  freeze: new THREE.MeshStandardMaterial({ color: 0x88ccff, emissive: 0x44aaff, emissiveIntensity: 1.5 }),
   headlight: new THREE.MeshBasicMaterial({ color: 0xffffcc }),
   taillight: new THREE.MeshBasicMaterial({ color: 0xff2200 }),
   siren_r: new THREE.MeshBasicMaterial({ color: 0xff0000 }),
@@ -428,10 +552,16 @@ const MAT = {
   glass: new THREE.MeshLambertMaterial({ color: 0x0a0a2e, transparent: true, opacity: 0.75 }),
   exhaust: new THREE.MeshBasicMaterial({ color: 0xff4400, transparent: true, opacity: 0.9 }),
   roadblock: new THREE.MeshStandardMaterial({ color: 0xff4400, emissive: 0xff2200, emissiveIntensity: 1.2 }),
+  spikeStrip: new THREE.MeshStandardMaterial({ color: 0x888888, emissive: 0x222222, emissiveIntensity: 0.5 }),
   skid: new THREE.MeshBasicMaterial({ color: 0x111111, transparent: true, opacity: 0.35, depthWrite: false, side: THREE.DoubleSide }),
-  particle: new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 1 }),
+  helicopter: new THREE.MeshLambertMaterial({ color: 0x1a1a2e }),
+  heliLight: new THREE.MeshBasicMaterial({ color: 0xff0000 }),
+  ghostCar: new THREE.MeshLambertMaterial({ color: 0x00ffaa, transparent: true, opacity: 0.3 }),
+  tunnel: new THREE.MeshLambertMaterial({ color: 0x0a0a14, side: THREE.BackSide }),
+  bridgeRail: new THREE.MeshLambertMaterial({ color: 0x223355 }),
 };
 const NEON_MATS = [MAT.neonCyan, MAT.neonPink, MAT.neonPurple, MAT.neonOrange, MAT.neonGreen];
+const PU_MATS = { shield: MAT.shield, magnet: MAT.magnet, turbo: MAT.turbo, ghost: MAT.ghost, freeze: MAT.freeze };
 
 /* ═══════════════════════════════════════════
    SHARED GEOMETRIES
@@ -446,11 +576,15 @@ const GEO = {
   siren: new THREE.BoxGeometry(0.34, 0.16, 0.22),
   sirenBar: new THREE.BoxGeometry(1.45, 0.1, 0.32),
   coin: new THREE.CylinderGeometry(0.48, 0.48, 0.14, 10),
-  repair: new THREE.BoxGeometry(0.65, 0.65, 0.65),
+  powerup: new THREE.OctahedronGeometry(0.6, 0),
   roadblock: new THREE.BoxGeometry(2.4, 1.15, 1.4),
+  spikeStrip: new THREE.BoxGeometry(CFG.road.width - 2, 0.08, 0.4),
   exhaust: new THREE.ConeGeometry(0.12, 0.5, 6),
   spark: new THREE.SphereGeometry(0.07, 4, 4),
   skidMark: new THREE.PlaneGeometry(0.22, 2.2),
+  helicopter: new THREE.BoxGeometry(3, 0.7, 5),
+  heliRotor: new THREE.BoxGeometry(6, 0.06, 0.3),
+  spotlight: new THREE.ConeGeometry(0.8, 6, 8),
 };
 
 /* ═══════════════════════════════════════════
@@ -461,100 +595,79 @@ function createCar(color, type) {
   const bodyMat = new THREE.MeshLambertMaterial({ color });
   const trimMat = new THREE.MeshLambertMaterial({ color: new THREE.Color(color).multiplyScalar(0.6) });
 
-  // Body
-  const body = new THREE.Mesh(GEO.carBody, bodyMat);
+  const body = new THREE.Mesh(GEO.carBody, type === 'ghost' ? MAT.ghostCar : bodyMat);
   body.position.set(0, 0.52, 0);
   group.add(body);
-
-  // Hood slope
-  const hood = new THREE.Mesh(GEO.carHood, bodyMat);
-  hood.position.set(0, 0.82, 1.15);
-  hood.rotation.x = -0.22;
+  const hood = new THREE.Mesh(GEO.carHood, type === 'ghost' ? MAT.ghostCar : bodyMat);
+  hood.position.set(0, 0.82, 1.15); hood.rotation.x = -0.22;
   group.add(hood);
-
-  // Cabin
-  const cabin = new THREE.Mesh(GEO.carCabin, MAT.glass);
+  const cabin = new THREE.Mesh(GEO.carCabin, type === 'ghost' ? MAT.ghostCar : MAT.glass);
   cabin.position.set(0, 1.1, -0.12);
   group.add(cabin);
-
-  // Cabin roof
-  const roof = new THREE.Mesh(new THREE.BoxGeometry(1.65, 0.12, 1.5), trimMat);
+  const roof = new THREE.Mesh(new THREE.BoxGeometry(1.65, 0.12, 1.5), type === 'ghost' ? MAT.ghostCar : trimMat);
   roof.position.set(0, 1.4, -0.12);
   group.add(roof);
 
-  // Wheels — four corners
   const wPos = [[-1.08, 0.31, 1.3], [1.08, 0.31, 1.3], [-1.08, 0.31, -1.3], [1.08, 0.31, -1.3]];
   wPos.forEach(p => {
-    const w = new THREE.Mesh(GEO.wheel, MAT.wheel);
-    w.position.set(...p);
-    w.rotation.z = Math.PI / 2;
+    const w = new THREE.Mesh(GEO.wheel, type === 'ghost' ? MAT.ghostCar : MAT.wheel);
+    w.position.set(...p); w.rotation.z = Math.PI / 2;
     group.add(w);
-    // Rim
-    const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.27, 6), new THREE.MeshLambertMaterial({ color: 0x444444 }));
-    rim.position.set(...p);
-    rim.rotation.z = Math.PI / 2;
-    group.add(rim);
   });
 
-  // Headlights
-  const hl1 = new THREE.Mesh(GEO.headlight, MAT.headlight);
-  hl1.position.set(-0.68, 0.6, 2.12);
-  group.add(hl1);
-  const hl2 = new THREE.Mesh(GEO.headlight, MAT.headlight);
-  hl2.position.set(0.68, 0.6, 2.12);
-  group.add(hl2);
+  const hl1 = new THREE.Mesh(GEO.headlight, MAT.headlight); hl1.position.set(-0.68, 0.6, 2.12); group.add(hl1);
+  const hl2 = new THREE.Mesh(GEO.headlight, MAT.headlight); hl2.position.set(0.68, 0.6, 2.12); group.add(hl2);
+  const tl1 = new THREE.Mesh(GEO.taillight, MAT.taillight); tl1.position.set(-0.68, 0.6, -2.12); group.add(tl1);
+  const tl2 = new THREE.Mesh(GEO.taillight, MAT.taillight); tl2.position.set(0.68, 0.6, -2.12); group.add(tl2);
 
-  // Taillights
-  const tl1 = new THREE.Mesh(GEO.taillight, MAT.taillight);
-  tl1.position.set(-0.68, 0.6, -2.12);
-  group.add(tl1);
-  const tl2 = new THREE.Mesh(GEO.taillight, MAT.taillight);
-  tl2.position.set(0.68, 0.6, -2.12);
-  group.add(tl2);
-
-  // Underline glow strip
   if (type === 'player') {
     const glowMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.7 });
     const glow = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 3.8), glowMat);
-    glow.rotation.x = -Math.PI / 2;
-    glow.position.set(0, 0.04, 0);
+    glow.rotation.x = -Math.PI / 2; glow.position.set(0, 0.04, 0);
     group.add(glow);
-
-    // Exhaust flames
     const exL = new THREE.Mesh(GEO.exhaust, MAT.exhaust.clone());
-    exL.position.set(-0.5, 0.32, -2.35);
-    exL.rotation.x = Math.PI / 2;
-    exL.visible = false;
-    group.add(exL);
+    exL.position.set(-0.5, 0.32, -2.35); exL.rotation.x = Math.PI / 2; exL.visible = false; group.add(exL);
     const exR = new THREE.Mesh(GEO.exhaust, MAT.exhaust.clone());
-    exR.position.set(0.5, 0.32, -2.35);
-    exR.rotation.x = Math.PI / 2;
-    exR.visible = false;
-    group.add(exR);
-
+    exR.position.set(0.5, 0.32, -2.35); exR.rotation.x = Math.PI / 2; exR.visible = false; group.add(exR);
     group.userData = { type: 'player', exL, exR };
   }
-
   if (type === 'police') {
-    // Police light bar
-    const bar = new THREE.Mesh(GEO.sirenBar, MAT.barrier);
-    bar.position.set(0, 1.48, -0.12);
-    group.add(bar);
-    const sr = new THREE.Mesh(GEO.siren, new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-    sr.position.set(-0.35, 1.58, -0.12);
-    group.add(sr);
-    const sb = new THREE.Mesh(GEO.siren, new THREE.MeshBasicMaterial({ color: 0x0044ff }));
-    sb.position.set(0.35, 1.58, -0.12);
-    group.add(sb);
+    const bar = new THREE.Mesh(GEO.sirenBar, MAT.barrier); bar.position.set(0, 1.48, -0.12); group.add(bar);
+    const sr = new THREE.Mesh(GEO.siren, new THREE.MeshBasicMaterial({ color: 0xff0000 })); sr.position.set(-0.35, 1.58, -0.12); group.add(sr);
+    const sb = new THREE.Mesh(GEO.siren, new THREE.MeshBasicMaterial({ color: 0x0044ff })); sb.position.set(0.35, 1.58, -0.12); group.add(sb);
     group.userData = { type: 'police', sr, sb };
   }
-
-  if (type === 'traffic') {
-    group.userData = { type: 'traffic' };
-  }
-
+  if (type === 'traffic') group.userData = { type: 'traffic' };
+  if (type === 'ghost') group.userData = { type: 'ghost' };
   return group;
 }
+
+/* ═══════════════════════════════════════════
+   HELICOPTER
+═══════════════════════════════════════════ */
+let helicopterMesh = null;
+function createHelicopter() {
+  const group = new THREE.Group();
+  const body = new THREE.Mesh(GEO.helicopter, MAT.helicopter); group.add(body);
+  const rotor = new THREE.Mesh(GEO.heliRotor, new THREE.MeshLambertMaterial({ color: 0x333344 }));
+  rotor.position.set(0, 0.5, 0); group.add(rotor);
+  const rotor2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.06, 5), new THREE.MeshLambertMaterial({ color: 0x333344 }));
+  rotor2.position.set(0, 0.5, 0); group.add(rotor2);
+  const light = new THREE.Mesh(new THREE.SphereGeometry(0.2, 6, 6), MAT.heliLight);
+  light.position.set(0, -0.5, 2); group.add(light);
+  const beam = new THREE.Mesh(GEO.spotlight, new THREE.MeshBasicMaterial({ color: 0xffffaa, transparent: true, opacity: 0.18 }));
+  beam.rotation.x = Math.PI; beam.position.set(0, -3, 0); group.add(beam);
+  group.userData = { rotor, light };
+  scene.add(group);
+  return group;
+}
+
+/* ═══════════════════════════════════════════
+   GHOST CAR
+═══════════════════════════════════════════ */
+let ghostMesh = null;
+let replayIndex = 0;
+let ghostReplayData = [];
 
 /* ═══════════════════════════════════════════
    OBJECT POOL
@@ -563,71 +676,35 @@ function createPool(factory, count) {
   const available = [];
   const active = new Set();
   for (let i = 0; i < count; i++) {
-    const obj = factory();
-    obj.visible = false;
-    available.push(obj);
+    const obj = factory(); obj.visible = false; available.push(obj);
   }
   return {
     get() {
       let obj = available.pop();
       if (!obj) { obj = factory(); }
-      obj.visible = true;
-      active.add(obj);
-      return obj;
+      obj.visible = true; active.add(obj); return obj;
     },
     release(obj) {
-      if (active.has(obj)) {
-        active.delete(obj);
-        obj.visible = false;
-        available.push(obj);
-      }
+      if (active.has(obj)) { active.delete(obj); obj.visible = false; available.push(obj); }
     },
-    releaseAll() {
-      for (const obj of active) { obj.visible = false; available.push(obj); }
-      active.clear();
-    },
+    releaseAll() { for (const o of active) { o.visible = false; available.push(o); } active.clear(); },
     size() { return active.size; },
     forEach(fn) { active.forEach(fn); },
     entries() { return active; }
   };
 }
 
-/* ═══════════════════════════════════════════
-   POOLS INIT
-═══════════════════════════════════════════ */
-let policePool, trafficPool, coinPool, repairPool, particlePool, skidPool, roadblockPool;
+let policePool, trafficPool, coinPool, repairPool, particlePool, skidPool, roadblockPool, powerupPool;
 
 function initPools() {
-  policePool = createPool(() => {
-    const m = createCar(0x111133, 'police'); scene.add(m); return m;
-  }, Q().maxPol + 2);
-
-  trafficPool = createPool(() => {
-    const col = TRAFFIC_COLS[Math.floor(Math.random() * TRAFFIC_COLS.length)];
-    const m = createCar(col, 'traffic'); scene.add(m); return m;
-  }, Q().maxTrf + 2);
-
-  coinPool = createPool(() => {
-    const m = new THREE.Mesh(GEO.coin, MAT.coin); scene.add(m); return m;
-  }, 20);
-
-  repairPool = createPool(() => {
-    const m = new THREE.Mesh(GEO.repair, MAT.repair); scene.add(m); return m;
-  }, 5);
-
-  particlePool = createPool(() => {
-    const m = new THREE.Mesh(GEO.spark, new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 1 }));
-    scene.add(m); return m;
-  }, Q().maxPt);
-
-  skidPool = createPool(() => {
-    const m = new THREE.Mesh(GEO.skidMark, MAT.skid.clone());
-    m.rotation.x = -Math.PI / 2; scene.add(m); return m;
-  }, 50);
-
-  roadblockPool = createPool(() => {
-    const m = new THREE.Mesh(GEO.roadblock, MAT.roadblock); scene.add(m); return m;
-  }, 12);
+  policePool = createPool(() => { const m = createCar(0x111133, 'police'); scene.add(m); return m; }, Q().maxPol + 2);
+  trafficPool = createPool(() => { const col = TRAFFIC_COLS[Math.floor(Math.random() * TRAFFIC_COLS.length)]; const m = createCar(col, 'traffic'); scene.add(m); return m; }, Q().maxTrf + 2);
+  coinPool = createPool(() => { const m = new THREE.Mesh(GEO.coin, MAT.coin); scene.add(m); return m; }, 20);
+  repairPool = createPool(() => { const m = new THREE.Mesh(GEO.powerup, MAT.repair.clone()); scene.add(m); return m; }, 5);
+  powerupPool = createPool(() => { const m = new THREE.Mesh(GEO.powerup, MAT.shield.clone()); scene.add(m); return m; }, 8);
+  particlePool = createPool(() => { const m = new THREE.Mesh(GEO.spark, new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 1 })); scene.add(m); return m; }, Q().maxPt);
+  skidPool = createPool(() => { const m = new THREE.Mesh(GEO.skidMark, MAT.skid.clone()); m.rotation.x = -Math.PI / 2; scene.add(m); return m; }, 50);
+  roadblockPool = createPool(() => { const m = new THREE.Mesh(GEO.roadblock, MAT.roadblock); scene.add(m); return m; }, 12);
 }
 
 /* ═══════════════════════════════════════════
@@ -635,35 +712,353 @@ function initPools() {
 ═══════════════════════════════════════════ */
 let playerMesh = null;
 let playerX = 0, playerZ = 0;
-
-const policeData = new Map();   // mesh → data
+const policeData = new Map();
 const trafficData = new Map();
 const coinData = new Map();
 const repairData = new Map();
+const powerupData = new Map();
 const particleData = new Map();
 const skidData = new Map();
 const roadblockData = new Map();
 
 /* ═══════════════════════════════════════════
-   ROAD GENERATION
+   DAY/NIGHT CYCLE
+═══════════════════════════════════════════ */
+function updateDayNight(dt) {
+  if (S.screen !== 'playing') return;
+  S.dayTime = (S.dayTime + dt / CFG.dayNight.cycleDuration) % 1;
+
+  // Sun/moon positions
+  const sunAngle = S.dayTime * Math.PI * 2;
+  sunLight.position.set(Math.cos(sunAngle) * 50, Math.sin(sunAngle) * 50, 20);
+  moonLight.position.set(-Math.cos(sunAngle) * 50, -Math.sin(sunAngle) * 50 + 20, -20);
+
+  // Day intensity: peaks at 0.5 (noon), 0 at midnight
+  const dayIntensity = Math.max(0, Math.sin(S.dayTime * Math.PI * 2));
+  const nightIntensity = Math.max(0, -Math.sin(S.dayTime * Math.PI * 2));
+  const duskDawn = Math.max(0, 1 - Math.abs(dayIntensity - 0.5) * 4);
+
+  // Sun color: orange at dawn/dusk, white at noon
+  const sunHue = duskDawn > 0.3 ? new THREE.Color(1, 0.5, 0.1) : new THREE.Color(0.8, 0.85, 1.0);
+  sunLight.color.lerp(sunHue, dt * 2);
+  sunLight.intensity = THREE.MathUtils.lerp(sunLight.intensity, dayIntensity * 1.8, dt * 1.5);
+  moonLight.intensity = THREE.MathUtils.lerp(moonLight.intensity, nightIntensity * 0.5, dt * 1.5);
+
+  // Sky color
+  const skyDark = new THREE.Color(0x050510);
+  const skyDay = new THREE.Color(0x050520);
+  const skyDusk = new THREE.Color(0x1a0810);
+  let sky = skyDark.clone();
+  if (duskDawn > 0.2) sky.lerp(skyDusk, duskDawn);
+  if (dayIntensity > 0.5) sky.lerp(skyDay, (dayIntensity - 0.5) * 2);
+  scene.background.lerp(sky, dt * 1.5);
+
+  // Ambient
+  const biome = BIOMES[S.currentBiome];
+  const targetAmbInt = biome.ambInt * (0.4 + dayIntensity * 0.6);
+  ambLight.intensity = THREE.MathUtils.lerp(ambLight.intensity, targetAmbInt, dt * 1.5);
+
+  // Update HUD indicator
+  const phase = S.dayTime < 0.15 ? '🌑 NIGHT' : S.dayTime < 0.28 ? '🌅 DAWN' : S.dayTime < 0.65 ? '☀ DAY' : S.dayTime < 0.78 ? '🌆 DUSK' : '🌑 NIGHT';
+  document.getElementById('dnInd').textContent = phase;
+
+  // Bloom increases at night
+  if (Q().bloom) bloomPass.strength = Q().bloomStr * (1 + nightIntensity * 0.8);
+}
+
+/* ═══════════════════════════════════════════
+   BIOME SYSTEM
+═══════════════════════════════════════════ */
+let biomeTimer = 0;
+let lastBiomeName = '';
+const BIOME_DURATIONS = [45, 30, 35, 40]; // seconds per biome
+
+function updateBiome(dt) {
+  biomeTimer += dt;
+  const dur = BIOME_DURATIONS[S.currentBiome];
+  S.biomeProgress = biomeTimer / dur;
+
+  if (biomeTimer >= dur) {
+    biomeTimer = 0;
+    S.currentBiome = (S.currentBiome + 1) % BIOMES.length;
+    const biome = BIOMES[S.currentBiome];
+    if (biome.name !== lastBiomeName) {
+      lastBiomeName = biome.name;
+      notify('ENTERING: ' + biome.name, '#8899ff');
+      const biomeEl = document.getElementById('biomeInd');
+      biomeEl.textContent = '— ' + biome.name + ' —';
+      biomeEl.classList.add('sh');
+      setTimeout(() => biomeEl.classList.remove('sh'), 3000);
+    }
+  }
+
+  // Blend fog and lighting based on biome
+  const biome = BIOMES[S.currentBiome];
+  const targetFog = biome.fogDensity * (S.weather === 'fog' ? 2.5 : S.weather === 'storm' ? 1.8 : 1);
+  scene.fog.density = THREE.MathUtils.lerp(scene.fog.density, targetFog, dt * 0.5);
+
+  const ambCol = new THREE.Color(biome.ambCol);
+  ambLight.color.lerp(ambCol, dt * 0.5);
+}
+
+/* ═══════════════════════════════════════════
+   MISSION SYSTEM
+═══════════════════════════════════════════ */
+function startMission() {
+  if (S.currentMission) return;
+  const idx = Math.floor(Math.random() * MISSIONS.length);
+  S.currentMission = Object.assign({}, MISSIONS[idx]);
+  S.missionProgress = 0;
+  S.missionStats = { near: 0, evade: 0, drift: 0 };
+  document.getElementById('msnHud').classList.remove('hid');
+  document.getElementById('msnTitle').textContent = S.currentMission.name;
+  document.getElementById('msnDesc').textContent = S.currentMission.desc;
+  document.getElementById('msnProg').style.width = '0%';
+  notify('MISSION: ' + S.currentMission.name, '#ffaa00');
+}
+
+function updateMission(dt) {
+  if (!S.currentMission) {
+    if (Math.random() < dt * 0.08) startMission();
+    return;
+  }
+  const m = S.currentMission;
+  let prog = 0;
+  switch (m.type) {
+    case 'speed': prog = Math.min(m.target, S.speed * 3.6) / m.target; break;
+    case 'coins': prog = Math.min(m.target, S.coins) / m.target; break;
+    case 'near': prog = Math.min(m.target, S.missionStats.near) / m.target; break;
+    case 'drift': prog = Math.min(m.target, S.missionStats.drift) / m.target; break;
+    case 'dist': prog = Math.min(m.target, S.dist) / m.target; break;
+    case 'evade': prog = Math.min(m.target, S.missionStats.evade) / m.target; break;
+    case 'combo': prog = Math.min(m.target, S.combo) / m.target; break;
+  }
+  S.missionProgress = prog;
+  document.getElementById('msnProg').style.width = (prog * 100) + '%';
+
+  if (m.type === 'drift') S.missionStats.drift += S.drifting ? dt : 0;
+
+  if (prog >= 1) {
+    // Mission complete!
+    S.totalCoins += m.reward;
+    addXP(m.xpReward);
+    S.missionsCompleted++;
+    S.score += m.reward * 2;
+    notify('✓ MISSION DONE! +' + m.reward + ' COINS', '#ffaa00');
+    document.getElementById('msnHud').classList.add('hid');
+    S.currentMission = null;
+    // Spawn next after delay
+    setTimeout(() => startMission(), 8000);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   POWER-UP SYSTEM
+═══════════════════════════════════════════ */
+let puSpawnTimer = 0;
+
+function spawnPowerup() {
+  const m = powerupPool.get();
+  const lane = Math.floor(Math.random() * CFG.road.lanes);
+  const laneW = CFG.road.width / CFG.road.lanes;
+  const puType = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
+  m.position.set(-CFG.road.width / 2 + laneW / 2 + lane * laneW, 1.2, playerZ + 80 + Math.random() * 80);
+  m.material.color.setHex(puType.col);
+  m.material.emissive = new THREE.Color(puType.col);
+  m.material.emissiveIntensity = 2.0;
+  powerupData.set(m, { type: puType });
+}
+
+function updatePowerups(dt) {
+  puSpawnTimer += dt;
+  if (puSpawnTimer > 20 && powerupData.size < 3) { puSpawnTimer = 0; spawnPowerup(); }
+
+  for (const [m, d] of powerupData) {
+    m.rotation.y += dt * 2;
+    m.rotation.x += dt * 1.5;
+    m.position.y = 1.2 + Math.sin(S.time * 3 + m.position.z) * 0.25;
+    if (m.position.z < playerZ - 30) { powerupData.delete(m); powerupPool.release(m); }
+  }
+
+  // Update active power-ups
+  const dispEl = document.getElementById('puDisp');
+  dispEl.innerHTML = '';
+  for (const [id, data] of Object.entries(S.activePowerups)) {
+    data.time -= dt;
+    if (data.time <= 0) {
+      delete S.activePowerups[id];
+      if (id === 'shield') S.shieldHP = 0;
+      if (id === 'magnet') S.magnetRadius = 0;
+      notify(id.toUpperCase() + ' EXPIRED', '#4a5580');
+    } else {
+      const pu = POWERUP_TYPES.find(p => p.id === id);
+      if (pu) {
+        const el = document.createElement('div');
+        el.className = 'puItem';
+        el.innerHTML = `<span class="pui">${pu.icon}</span><span class="put">${pu.name} ${data.time.toFixed(1)}s</span>`;
+        dispEl.appendChild(el);
+      }
+    }
+  }
+  // Shield bar
+  document.getElementById('shB').style.width = S.activePowerups.shield ? (S.activePowerups.shield.time / POWERUP_TYPES.find(p=>p.id==='shield').duration * 100) + '%' : '0%';
+}
+
+function activatePowerup(type) {
+  S.activePowerups[type.id] = { time: type.duration };
+  if (type.id === 'shield') S.shieldHP = 100;
+  if (type.id === 'magnet') S.magnetRadius = 8;
+  playCoinSound();
+  notify(type.icon + ' ' + type.name + '!', '#' + type.col.toString(16).padStart(6,'0'));
+}
+
+function hasPowerup(id) { return !!S.activePowerups[id]; }
+
+/* ═══════════════════════════════════════════
+   HELICOPTER (heat 4+)
+═══════════════════════════════════════════ */
+function updateHelicopter(dt) {
+  if (S.heat < 4) {
+    if (helicopterMesh) { helicopterMesh.visible = false; S.helicopterActive = false; }
+    return;
+  }
+  S.helicopterSpawnTimer = (S.helicopterSpawnTimer || 0) + dt;
+  if (!S.helicopterActive && S.helicopterSpawnTimer > 15) {
+    S.helicopterSpawnTimer = 0;
+    S.helicopterActive = true;
+    if (!helicopterMesh) helicopterMesh = createHelicopter();
+    helicopterMesh.visible = true;
+    S.helicopterX = playerX;
+    S.helicopterZ = playerZ + 30;
+    S.helicopterY = 22;
+    notify('⚠ HELICOPTER DEPLOYED!', '#ff4400');
+  }
+  if (!S.helicopterActive || !helicopterMesh) return;
+
+  // Circle/chase behaviour
+  S.helicopterTimer = (S.helicopterTimer || 0) + dt;
+  const targetX = playerX + Math.sin(S.helicopterTimer * 0.5) * 8;
+  const targetZ = playerZ + 25;
+  S.helicopterX = THREE.MathUtils.lerp(S.helicopterX, targetX, dt * 0.8);
+  S.helicopterZ = THREE.MathUtils.lerp(S.helicopterZ, targetZ, dt * 1.2);
+  helicopterMesh.position.set(S.helicopterX, S.helicopterY, S.helicopterZ);
+  // Rotor spin
+  if (helicopterMesh.userData.rotor) helicopterMesh.userData.rotor.rotation.y += dt * 15;
+  helicopterMesh.rotation.z = Math.sin(S.helicopterTimer * 0.3) * 0.08;
+
+  // Drop spike strips periodically
+  if (Math.floor(S.helicopterTimer * 10) % 80 === 0 && S.spikeStrips.length < 3) {
+    dropSpikeStrip(S.helicopterX, S.helicopterZ + 10);
+  }
+
+  // Despawn after 45s
+  if (S.helicopterTimer > 45) {
+    S.helicopterActive = false;
+    S.helicopterTimer = 0;
+    helicopterMesh.visible = false;
+    notify('Helicopter broke off pursuit', '#4a5580');
+  }
+}
+
+/* ═══════════════════════════════════════════
+   SPIKE STRIPS (dropped by helicopter or placed)
+═══════════════════════════════════════════ */
+let spikeStripMeshes = [];
+function dropSpikeStrip(x, z) {
+  const m = new THREE.Mesh(GEO.spikeStrip, MAT.spikeStrip);
+  m.position.set(x, 0.05, z);
+  scene.add(m);
+  spikeStripMeshes.push(m);
+  S.spikeStrips.push({ mesh: m, z });
+  notify('SPIKE STRIP DROPPED!', '#ff6600');
+}
+
+function updateSpikeStrips(dt) {
+  S.spikeStrips = S.spikeStrips.filter(s => {
+    if (s.z < playerZ - 60) { scene.remove(s.mesh); s.mesh.geometry.dispose(); return false; }
+    // Collision
+    if (!hasPowerup('ghost') && !hasPowerup('shield') &&
+        Math.abs(playerZ - s.z) < 0.8 && Math.abs(playerX - s.mesh.position.x) < CFG.road.width / 2 - 1) {
+      dealDamage(25, false);
+      S.speed *= 0.4;
+      notify('SPIKE STRIP!', '#ff4400');
+      scene.remove(s.mesh); s.mesh.geometry.dispose(); return false;
+    }
+    return true;
+  });
+  spikeStripMeshes = spikeStripMeshes.filter(m => scene.children.includes(m));
+}
+
+/* ═══════════════════════════════════════════
+   GHOST CAR REPLAY
+═══════════════════════════════════════════ */
+let replayRecordTimer = 0;
+function updateReplayRecording(dt) {
+  if (!S.recordingReplay) return;
+  replayRecordTimer += dt;
+  if (replayRecordTimer > 0.05) { // 20fps recording
+    replayRecordTimer = 0;
+    S.replayBuffer.push({ x: playerX, z: playerZ, ry: playerMesh ? playerMesh.rotation.y : 0, speed: S.speed });
+    if (S.replayBuffer.length > 2000) S.replayBuffer.shift();
+  }
+}
+
+function showGhostCar() {
+  const saved = localStorage.getItem('hwyGhost6');
+  if (!saved) return;
+  try {
+    ghostReplayData = JSON.parse(saved);
+    if (!ghostMesh) {
+      ghostMesh = createCar(0x00ffaa, 'ghost');
+      scene.add(ghostMesh);
+    }
+    ghostMesh.visible = true;
+    replayIndex = 0;
+  } catch(e) {}
+}
+
+function updateGhostCar(dt) {
+  if (!ghostMesh || !ghostMesh.visible || ghostReplayData.length === 0) return;
+  replayIndex = Math.min(replayIndex + 1, ghostReplayData.length - 1);
+  if (replayIndex >= ghostReplayData.length - 1) { ghostMesh.visible = false; return; }
+  const f = ghostReplayData[replayIndex];
+  ghostMesh.position.set(f.x, 0, f.z);
+  ghostMesh.rotation.y = f.ry;
+}
+
+/* ═══════════════════════════════════════════
+   ROAD GENERATION (biome-aware)
 ═══════════════════════════════════════════ */
 const roadGroup = new THREE.Group();
 scene.add(roadGroup);
-const roadSegments = new Map(); // z → group
+const roadSegments = new Map();
+
+function getRoadMat() {
+  const b = S.currentBiome;
+  const isWet = S.weather === 'rain' || S.weather === 'storm';
+  if (isWet) return MAT.roadWet;
+  if (b === 3) return MAT.roadDesert;
+  if (b === 1) return MAT.roadTunnel;
+  return MAT.road;
+}
+
+function getBarrierMat() {
+  if (S.currentBiome === 3) return MAT.barrierDesert;
+  if (S.currentBiome === 1) return MAT.barrierTunnel;
+  return MAT.barrier;
+}
 
 function buildRoadSegment(startZ) {
   const seg = new THREE.Group();
   const L = CFG.road.segLen;
   const W = CFG.road.width;
-  const isWet = S.weather === 'rain' || S.weather === 'storm';
+  const biome = BIOMES[S.currentBiome];
 
-  // Road surface
-  const road = new THREE.Mesh(new THREE.PlaneGeometry(W, L), isWet ? MAT.roadWet : MAT.road);
+  const road = new THREE.Mesh(new THREE.PlaneGeometry(W, L), getRoadMat());
   road.rotation.x = -Math.PI / 2;
   road.position.set(0, 0, startZ + L / 2);
   seg.add(road);
 
-  // Lane dashes
   const laneW = W / CFG.road.lanes;
   for (let i = 1; i < CFG.road.lanes; i++) {
     const x = -W / 2 + i * laneW;
@@ -675,7 +1070,6 @@ function buildRoadSegment(startZ) {
     }
   }
 
-  // Neon edge lines (always bright)
   [-W / 2 + 0.1, W / 2 - 0.1].forEach(x => {
     const edge = new THREE.Mesh(new THREE.PlaneGeometry(0.15, L), MAT.neonCyan);
     edge.rotation.x = -Math.PI / 2;
@@ -683,55 +1077,94 @@ function buildRoadSegment(startZ) {
     seg.add(edge);
   });
 
-  // Side barriers
   const barrierGeo = new THREE.BoxGeometry(0.38, 0.75, L);
   [-W / 2 - 0.28, W / 2 + 0.28].forEach(x => {
-    const b = new THREE.Mesh(barrierGeo, MAT.barrier);
+    const b = new THREE.Mesh(barrierGeo, getBarrierMat());
     b.position.set(x, 0.375, startZ + L / 2);
     seg.add(b);
   });
 
-  // Buildings
-  for (let side = -1; side <= 1; side += 2) {
-    for (let b = 0; b < Q().bldPerSeg; b++) {
-      const bx = side * (W / 2 + 7 + Math.random() * 20);
-      const bw = 5 + Math.random() * 11;
-      const bh = 8 + Math.random() * 38;
-      const bd = 7 + Math.random() * 16;
-      const bz = startZ + Math.random() * L;
-      const bMat = new THREE.MeshLambertMaterial({
-        color: new THREE.Color().setHSL(0.58 + Math.random() * 0.08, 0.1, 0.035 + Math.random() * 0.035)
-      });
-      const building = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bd), bMat);
-      building.position.set(bx, bh / 2, bz);
-      seg.add(building);
-
-      // Neon strips
-      const nMat = NEON_MATS[Math.floor(Math.random() * NEON_MATS.length)];
-      const strips = Math.min(3, Math.floor(bh / 7));
-      for (let s = 0; s < strips; s++) {
-        if (Math.random() > 0.5) continue;
-        const yp = 2 + s * 7;
-        if (yp >= bh - 1) continue;
-        const strip = new THREE.Mesh(new THREE.PlaneGeometry(bw * 0.7, 0.28), nMat);
-        strip.position.set(bx, yp, bz + (side > 0 ? -bd / 2 - 0.04 : bd / 2 + 0.04));
-        strip.rotation.y = side > 0 ? Math.PI : 0;
-        seg.add(strip);
+  // Biome-specific geometry
+  if (S.currentBiome === 1) {
+    // TUNNEL: ceiling and walls
+    const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(W + 8, L), new THREE.MeshLambertMaterial({ color: 0x080810 }));
+    ceiling.rotation.x = Math.PI / 2;
+    ceiling.position.set(0, 8, startZ + L / 2);
+    seg.add(ceiling);
+    // Tunnel light strips
+    for (let d = 15; d < L; d += 25) {
+      const strip = new THREE.Mesh(new THREE.PlaneGeometry(W - 2, 0.3), MAT.neonCyan);
+      strip.rotation.x = Math.PI / 2;
+      strip.position.set(0, 7.9, startZ + d);
+      seg.add(strip);
+    }
+  } else if (S.currentBiome === 2) {
+    // BRIDGE: railings
+    [-W / 2 - 1, W / 2 + 1].forEach(x => {
+      for (let d = 5; d < L; d += 8) {
+        const post = new THREE.Mesh(new THREE.BoxGeometry(0.15, 2.5, 0.15), MAT.bridgeRail);
+        post.position.set(x, 1.25, startZ + d);
+        seg.add(post);
+      }
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, L), MAT.bridgeRail);
+      rail.position.set(x, 2.5, startZ + L / 2);
+      seg.add(rail);
+    });
+    // Bridge gap below (ocean look)
+    const water = new THREE.Mesh(new THREE.PlaneGeometry(W + 30, L), new THREE.MeshLambertMaterial({ color: 0x040820 }));
+    water.rotation.x = -Math.PI / 2;
+    water.position.set(0, -25, startZ + L / 2);
+    seg.add(water);
+  } else if (S.currentBiome === 3) {
+    // DESERT: sand dunes in background
+    for (let side = -1; side <= 1; side += 2) {
+      for (let b = 0; b < 3; b++) {
+        const dune = new THREE.Mesh(new THREE.SphereGeometry(8 + Math.random() * 12, 6, 4), new THREE.MeshLambertMaterial({ color: 0x2a1808 }));
+        dune.position.set(side * (W / 2 + 15 + Math.random() * 20), -3, startZ + Math.random() * L);
+        seg.add(dune);
       }
     }
-  }
-
-  // Street lights
-  for (let d = 20; d < L; d += 45) {
-    [-1, 1].forEach(side => {
-      const x = side * (W / 2 + 2);
-      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 6, 6), MAT.barrier);
-      pole.position.set(x, 3, startZ + d);
-      seg.add(pole);
-      const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.16, 6, 6), MAT.neonCyan);
-      lamp.position.set(x, 6.1, startZ + d);
-      seg.add(lamp);
-    });
+  } else {
+    // CITY: buildings
+    for (let side = -1; side <= 1; side += 2) {
+      for (let b = 0; b < Q().bldPerSeg; b++) {
+        const bx = side * (W / 2 + 7 + Math.random() * 20);
+        const bw = 5 + Math.random() * 11;
+        const [minH, maxH] = biome.buildingH;
+        if (minH === 0 && maxH === 0) continue;
+        const bh = minH + Math.random() * (maxH - minH);
+        const bd = 7 + Math.random() * 16;
+        const bz = startZ + Math.random() * L;
+        const bMat = new THREE.MeshLambertMaterial({ color: new THREE.Color().setHSL(0.58 + Math.random() * 0.08, 0.1, 0.035 + Math.random() * 0.035) });
+        const building = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bd), bMat);
+        building.position.set(bx, bh / 2, bz);
+        seg.add(building);
+        // Neon strips (animated intensity based on biome)
+        const nMat = NEON_MATS[Math.floor(Math.random() * NEON_MATS.length)];
+        const strips = Math.min(3, Math.floor(bh / 7));
+        for (let s = 0; s < strips; s++) {
+          if (Math.random() > 0.5) continue;
+          const yp = 2 + s * 7;
+          if (yp >= bh - 1) continue;
+          const strip = new THREE.Mesh(new THREE.PlaneGeometry(bw * 0.7, 0.28), nMat.clone());
+          strip.position.set(bx, yp, bz + (side > 0 ? -bd / 2 - 0.04 : bd / 2 + 0.04));
+          strip.rotation.y = side > 0 ? Math.PI : 0;
+          seg.add(strip);
+        }
+      }
+    }
+    // Street lights
+    for (let d = 20; d < L; d += 45) {
+      [-1, 1].forEach(side => {
+        const x = side * (W / 2 + 2);
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 6, 6), MAT.barrier);
+        pole.position.set(x, 3, startZ + d);
+        seg.add(pole);
+        const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.16, 6, 6), MAT.neonCyan);
+        lamp.position.set(x, 6.1, startZ + d);
+        seg.add(lamp);
+      });
+    }
   }
 
   roadGroup.add(seg);
@@ -742,11 +1175,9 @@ function updateRoad() {
   const segLen = CFG.road.segLen;
   const startZ = Math.floor((playerZ - 100) / segLen) * segLen;
   const endZ = playerZ + segLen * 5;
-
   for (let z = startZ; z < endZ; z += segLen) {
     if (!roadSegments.has(z)) buildRoadSegment(z);
   }
-
   for (const [z, seg] of roadSegments) {
     if (z < startZ - segLen) {
       roadGroup.remove(seg);
@@ -756,30 +1187,21 @@ function updateRoad() {
   }
 }
 
-function isSharedMat(mat) {
-  return Object.values(MAT).includes(mat);
-}
+function isSharedMat(mat) { return Object.values(MAT).includes(mat); }
 
 /* ═══════════════════════════════════════════
    PARTICLES
 ═══════════════════════════════════════════ */
 function spawnParticles(pos, color, count = 8, spread = 2, speed = 5) {
-  const available = Math.max(0, Q().maxPt - particleData.size);
-  const n = Math.min(count, available);
+  const n = Math.min(count, Math.max(0, Q().maxPt - particleData.size));
   for (let i = 0; i < n; i++) {
-    let m;
-    try { m = particlePool.get(); } catch(e) { break; }
+    let m; try { m = particlePool.get(); } catch(e) { break; }
     m.material.color.setHex(color);
     m.position.copy(pos);
-    const v = new THREE.Vector3(
-      (Math.random() - 0.5) * spread * speed,
-      Math.random() * speed * 0.6,
-      (Math.random() - 0.5) * spread * speed
-    );
+    const v = new THREE.Vector3((Math.random()-.5)*spread*speed, Math.random()*speed*.6, (Math.random()-.5)*spread*speed);
     m.material.opacity = 1;
     m.scale.setScalar(0.5 + Math.random() * 0.6);
-    const life = 0.28 + Math.random() * 0.38;
-    particleData.set(m, { v, life, age: 0 });
+    particleData.set(m, { v, life: 0.28 + Math.random() * 0.38, age: 0 });
   }
 }
 
@@ -799,15 +1221,13 @@ function updateParticles(dt) {
    SKID MARKS
 ═══════════════════════════════════════════ */
 let skidTimer = 0;
-
 function updateSkids(dt) {
   if (!Q().skid) return;
   skidTimer += dt;
   if (S.drifting && skidTimer > 0.1) {
     skidTimer = 0;
     for (let side of [-1, 1]) {
-      let m;
-      try { m = skidPool.get(); } catch(e) { continue; }
+      let m; try { m = skidPool.get(); } catch(e) { continue; }
       m.position.set(playerX + side * 0.88, 0.012, playerZ - 1.2);
       m.rotation.z = playerMesh ? playerMesh.rotation.y : 0;
       m.material.opacity = 0.38;
@@ -825,18 +1245,13 @@ function updateSkids(dt) {
    RAIN
 ═══════════════════════════════════════════ */
 let rainMesh = null;
-
 function initRain() {
   if (rainMesh) { scene.remove(rainMesh); rainMesh.geometry.dispose(); rainMesh = null; }
   const cnt = Q().rainPts;
   if (!cnt) return;
   const geo = new THREE.BufferGeometry();
   const pos = new Float32Array(cnt * 3);
-  for (let i = 0; i < cnt; i++) {
-    pos[i * 3] = (Math.random() - 0.5) * 80;
-    pos[i * 3 + 1] = Math.random() * 42;
-    pos[i * 3 + 2] = (Math.random() - 0.5) * 80;
-  }
+  for (let i = 0; i < cnt; i++) { pos[i*3]=(Math.random()-.5)*80; pos[i*3+1]=Math.random()*42; pos[i*3+2]=(Math.random()-.5)*80; }
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
   rainMesh = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x8899bb, size: 0.08, transparent: true, opacity: 0.4 }));
   scene.add(rainMesh);
@@ -851,117 +1266,88 @@ function updateRain(dt) {
   const cnt = arr.length / 3;
   const speed = S.weather === 'storm' ? 40 : 26;
   for (let i = 0; i < cnt; i++) {
-    arr[i * 3 + 1] -= speed * dt;
-    if (arr[i * 3 + 1] < 0) {
-      arr[i * 3] = playerX + (Math.random() - 0.5) * 80;
-      arr[i * 3 + 1] = 38 + Math.random() * 8;
-      arr[i * 3 + 2] = playerZ + (Math.random() - 0.5) * 80;
-    }
+    arr[i*3+1] -= speed * dt;
+    if (arr[i*3+1] < 0) { arr[i*3]=playerX+(Math.random()-.5)*80; arr[i*3+1]=38+Math.random()*8; arr[i*3+2]=playerZ+(Math.random()-.5)*80; }
   }
   rainMesh.geometry.attributes.position.needsUpdate = true;
 }
 
 /* ═══════════════════════════════════════════
-   INPUT SYSTEM
+   INPUT
 ═══════════════════════════════════════════ */
 const input = { left: false, right: false, gas: false, brake: false, drift: false, nitro: false };
-
 document.addEventListener('keydown', e => {
-  if (e.code === 'ArrowLeft'  || e.code === 'KeyA') input.left  = true;
-  if (e.code === 'ArrowRight' || e.code === 'KeyD') input.right = true;
-  if (e.code === 'ArrowUp'    || e.code === 'KeyW') input.gas   = true;
-  if (e.code === 'ArrowDown'  || e.code === 'KeyS') input.brake = true;
-  if (e.code === 'Space') { input.drift = true; e.preventDefault(); }
-  if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') input.nitro = true;
-  if (e.code === 'Escape') togglePause();
+  if (e.code==='ArrowLeft'||e.code==='KeyA') input.left=true;
+  if (e.code==='ArrowRight'||e.code==='KeyD') input.right=true;
+  if (e.code==='ArrowUp'||e.code==='KeyW') input.gas=true;
+  if (e.code==='ArrowDown'||e.code==='KeyS') input.brake=true;
+  if (e.code==='Space') { input.drift=true; e.preventDefault(); }
+  if (e.code==='ShiftLeft'||e.code==='ShiftRight') input.nitro=true;
+  if (e.code==='Escape') togglePause();
 });
 document.addEventListener('keyup', e => {
-  if (e.code === 'ArrowLeft'  || e.code === 'KeyA') input.left  = false;
-  if (e.code === 'ArrowRight' || e.code === 'KeyD') input.right = false;
-  if (e.code === 'ArrowUp'    || e.code === 'KeyW') input.gas   = false;
-  if (e.code === 'ArrowDown'  || e.code === 'KeyS') input.brake = false;
-  if (e.code === 'Space') input.drift = false;
-  if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') input.nitro = false;
+  if (e.code==='ArrowLeft'||e.code==='KeyA') input.left=false;
+  if (e.code==='ArrowRight'||e.code==='KeyD') input.right=false;
+  if (e.code==='ArrowUp'||e.code==='KeyW') input.gas=false;
+  if (e.code==='ArrowDown'||e.code==='KeyS') input.brake=false;
+  if (e.code==='Space') input.drift=false;
+  if (e.code==='ShiftLeft'||e.code==='ShiftRight') input.nitro=false;
 });
 
 function bindTouch(id, key) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.addEventListener('touchstart', e => { e.preventDefault(); input[key] = true; }, { passive: false });
-  el.addEventListener('touchend',   e => { e.preventDefault(); input[key] = false; }, { passive: false });
-  el.addEventListener('touchcancel', () => { input[key] = false; });
+  const el = document.getElementById(id); if (!el) return;
+  el.addEventListener('touchstart', e => { e.preventDefault(); input[key]=true; }, { passive: false });
+  el.addEventListener('touchend', e => { e.preventDefault(); input[key]=false; }, { passive: false });
+  el.addEventListener('touchcancel', () => { input[key]=false; });
 }
-bindTouch('sL', 'left');
-bindTouch('sR', 'right');
-bindTouch('bBr', 'brake');
-bindTouch('dBr', 'drift');
-bindTouch('nBr', 'nitro');
-
-// Left/right also provides gas on touch
-['sL', 'sR'].forEach(id => {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.addEventListener('touchstart', () => { input.gas = true; });
-  el.addEventListener('touchend',   () => { if (!input.left && !input.right) input.gas = false; });
+bindTouch('sL','left'); bindTouch('sR','right'); bindTouch('bBr','brake'); bindTouch('dBr','drift'); bindTouch('nBr','nitro');
+['sL','sR'].forEach(id => {
+  const el = document.getElementById(id); if (!el) return;
+  el.addEventListener('touchstart', () => { input.gas=true; });
+  el.addEventListener('touchend', () => { if (!input.left&&!input.right) input.gas=false; });
 });
 
-/* ═══════════════════════════════════════════
-   SMOOTH INPUT STATE
-═══════════════════════════════════════════ */
 const SI = { left: 0, right: 0, gas: 0, brake: 0 };
 
 /* ═══════════════════════════════════════════
    PLAYER PHYSICS
 ═══════════════════════════════════════════ */
 let nitroWasOff = true;
-
 function updatePlayer(dt) {
   const speedStat = carStat('spd');
   const hanStat = carStat('han');
   const armStat = carStat('arm');
   const nitStat = carStat('nit');
-  const maxSpd = CFG.player.maxSpd * speedStat;
+  const maxSpd = CFG.player.maxSpd * speedStat * (hasPowerup('turbo') ? 1.5 : 1);
 
-  // Smooth input
   const r = dt * 9;
   SI.left  = THREE.MathUtils.lerp(SI.left,  input.left  ? 1 : 0, r);
   SI.right = THREE.MathUtils.lerp(SI.right, input.right ? 1 : 0, r);
   SI.gas   = THREE.MathUtils.lerp(SI.gas,   input.gas   ? 1 : 0, r * 0.75);
   SI.brake = THREE.MathUtils.lerp(SI.brake, input.brake ? 1 : 0, r);
 
-  // Acceleration
   S.speed += (SI.gas * CFG.player.acc * speedStat - CFG.player.drag * S.speed * 0.12) * dt;
   if (SI.brake > 0.08) S.speed -= CFG.player.brk * SI.brake * dt;
   S.speed = Math.max(0, Math.min(S.speed, maxSpd));
 
-  // Nitro
   const nitroOn = input.nitro && S.nitro > 0;
   if (nitroOn) {
     S.speed += CFG.nitro.boost * nitStat * dt;
     S.speed = Math.min(S.speed, maxSpd * 1.4);
-    S.nitro -= CFG.nitro.drain * dt;
-    S.nitro = Math.max(0, S.nitro);
-    if (Math.random() < 0.3) {
-      spawnParticles(new THREE.Vector3(playerX + (Math.random() - 0.5) * 0.5, 0.3, playerZ - 2.3), 0x0066ff, 1, 0.3, 2);
-    }
-    if (nitroWasOff) { playNitroSound(); nitroWasOff = false; }
+    S.nitro -= CFG.nitro.drain * dt; S.nitro = Math.max(0, S.nitro);
+    if (Math.random() < 0.3) spawnParticles(new THREE.Vector3(playerX+(Math.random()-.5)*.5,.3,playerZ-2.3),0x0066ff,1,.3,2);
+    if (nitroWasOff) { playNitroSound(); nitroWasOff=false; }
   } else {
     S.nitro = Math.min(100, S.nitro + CFG.nitro.regen * dt);
     nitroWasOff = true;
   }
 
-  // Exhaust flames
   if (playerMesh && playerMesh.userData.exL) {
     playerMesh.userData.exL.visible = nitroOn;
     playerMesh.userData.exR.visible = nitroOn;
-    if (nitroOn) {
-      const f = 0.75 + Math.random() * 0.55;
-      playerMesh.userData.exL.scale.set(f, f * 1.4, f);
-      playerMesh.userData.exR.scale.set(f, f * 1.4, f);
-    }
+    if (nitroOn) { const f=.75+Math.random()*.55; playerMesh.userData.exL.scale.set(f,f*1.4,f); playerMesh.userData.exR.scale.set(f,f*1.4,f); }
   }
 
-  // Steering
   const isDrifting = input.drift;
   const steerStr = CFG.player.steer * hanStat * (isDrifting ? CFG.player.driftSteerMul : 1);
   S.lateralV += (SI.right - SI.left) * steerStr * dt;
@@ -969,10 +1355,9 @@ function updatePlayer(dt) {
   S.lateralV -= S.lateralV * latDamp * dt;
   S.lateralV = Math.max(-26, Math.min(26, S.lateralV));
 
-  // Drift scoring
   S.drifting = isDrifting && Math.abs(S.lateralV) > 2.2 && S.speed > 18;
   if (S.drifting) {
-    S.driftTimer += dt;
+    S.driftTimer += dt; S.totalDrift += dt;
     addXP(dt * 2.5);
     S.score += Math.floor(CFG.combo.driftScore * S.combo * dt);
   } else {
@@ -980,121 +1365,97 @@ function updatePlayer(dt) {
     S.driftTimer = 0;
   }
 
-  // Move player
   playerX += S.lateralV * dt;
   playerZ += S.speed * dt;
 
-  // Wall collisions
   const halfW = CFG.road.width / 2 - 1.1;
-  if (playerX < -halfW) {
-    playerX = -halfW;
-    S.lateralV *= -0.25;
-    dealDamage(CFG.hp.barrierHit * dt * 5 / armStat, true);
-    S.shakeAmt = 0.28;
-  }
-  if (playerX > halfW) {
-    playerX = halfW;
-    S.lateralV *= -0.25;
-    dealDamage(CFG.hp.barrierHit * dt * 5 / armStat, true);
-    S.shakeAmt = 0.28;
-  }
+  if (playerX < -halfW) { playerX=-halfW; S.lateralV*=-.25; if (!hasPowerup('shield')&&!hasPowerup('ghost')) dealDamage(CFG.hp.barrierHit*dt*5/armStat,true); S.shakeAmt=.28; }
+  if (playerX > halfW) { playerX=halfW; S.lateralV*=-.25; if (!hasPowerup('shield')&&!hasPowerup('ghost')) dealDamage(CFG.hp.barrierHit*dt*5/armStat,true); S.shakeAmt=.28; }
 
-  // Update mesh transform
   if (playerMesh) {
-    playerMesh.position.set(
-      playerX,
-      Math.sin(S.time * 11) * 0.018 * (S.speed / Math.max(1, maxSpd)),
-      playerZ
-    );
-    playerMesh.rotation.y = THREE.MathUtils.lerp(playerMesh.rotation.y, -S.lateralV * 0.028, dt * 7);
-    playerMesh.rotation.z = THREE.MathUtils.lerp(playerMesh.rotation.z, S.drifting ? S.lateralV * 0.011 : 0, dt * 5);
+    playerMesh.position.set(playerX, Math.sin(S.time*11)*.018*(S.speed/Math.max(1,maxSpd)), playerZ);
+    playerMesh.rotation.y = THREE.MathUtils.lerp(playerMesh.rotation.y, -S.lateralV*.028, dt*7);
+    playerMesh.rotation.z = THREE.MathUtils.lerp(playerMesh.rotation.z, S.drifting ? S.lateralV*.011 : 0, dt*5);
+    // Ghost glow when powered up
+    if (hasPowerup('ghost')) { playerMesh.traverse(c => { if (c.isMesh && c.material && c.material.transparent !== undefined) c.material.opacity = 0.4; }); }
+    else { playerMesh.traverse(c => { if (c.isMesh && c.material && c.material !== MAT.ghostCar) { if (c.material.transparent) c.material.opacity = c.material === MAT.glass ? 0.75 : 1; } }); }
   }
 
-  // Stats
+  // Coin magnet
+  if (S.magnetRadius > 0) {
+    for (const [m] of coinData) {
+      const dx = playerX - m.position.x;
+      const dz = playerZ - m.position.z;
+      const dist = Math.sqrt(dx*dx + dz*dz);
+      if (dist < S.magnetRadius) { m.position.x += dx * 0.08; m.position.z += dz * 0.08; }
+    }
+  }
+
   S.dist = Math.floor(playerZ);
   if (S.speed > S.topSpeed) S.topSpeed = S.speed;
   if (S.invTimer > 0) S.invTimer -= dt;
-
-  // Score from driving
   S.score += Math.floor(S.speed * 0.008 * S.combo * dt);
 }
 
 function dealDamage(amt, isBarrier = false) {
+  if (hasPowerup('shield')) {
+    S.shieldHP -= amt; if (S.shieldHP <= 0) { delete S.activePowerups.shield; S.shieldHP=0; notify('SHIELD BROKEN!','#aa00ff'); } return;
+  }
+  if (hasPowerup('ghost')) return;
   const arm = carStat('arm');
   S.hp -= amt / arm;
   S.invTimer = 0.35;
   if (amt > 5) {
     S.shakeAmt = Math.min(0.75, amt * 0.035);
-    showDamageFlash();
-    playCrashSound();
-    spawnParticles(new THREE.Vector3(playerX, 1, playerZ), 0xff4400, 8, 2, 4);
-    if (amt > 14) {
-      S.slowTarget = 0.28;
-      S.slowTimer = 0.6;
-      document.getElementById('smOv').classList.add('sh');
-    }
+    showDamageFlash(); playCrashSound();
+    spawnParticles(new THREE.Vector3(playerX,1,playerZ),0xff4400,8,2,4);
+    if (amt > 14) { S.slowTarget=.28; S.slowTimer=.6; document.getElementById('smOv').classList.add('sh'); }
   }
-  if (S.hp <= 0) { S.hp = 0; triggerGameOver(); }
+  if (S.hp <= 0) { S.hp=0; triggerGameOver(); }
 }
 
 /* ═══════════════════════════════════════════
-   POLICE AI
+   POLICE AI (with escalation)
 ═══════════════════════════════════════════ */
 let policeSpawnTimer = 0;
-
 function updatePolice(dt) {
   policeSpawnTimer += dt;
+  // Freeze power-up stops police
+  if (hasPowerup('freeze')) {
+    for (const [m] of policeData) m.position.z = m.position.z; // still
+    return;
+  }
   const maxCars = Math.min(Q().maxPol, Math.floor(S.heat) + 1);
-
   if (policePool.size() < maxCars && policeSpawnTimer > 1.4) {
     policeSpawnTimer = 0;
     const m = policePool.get();
     const lane = Math.floor(Math.random() * CFG.road.lanes);
     const laneW = CFG.road.width / CFG.road.lanes;
-    const x = -CFG.road.width / 2 + laneW / 2 + lane * laneW;
-    m.position.set(x, 0, playerZ - CFG.police.spawnDist - Math.random() * 28);
-
-    const roles = ['chaser', 'chaser', 'blocker', 'flanker'];
-    const role = S.heat >= 3 ? roles[Math.floor(Math.random() * roles.length)] : 'chaser';
-    policeData.set(m, { speed: CFG.police.baseSpd, aggression: 0.28 + S.heat * 0.12, role, nmCooldown: 0 });
+    const x = -CFG.road.width/2 + laneW/2 + lane*laneW;
+    m.position.set(x, 0, playerZ - CFG.police.spawnDist - Math.random()*28);
+    const roles = ['chaser','chaser','blocker','flanker'];
+    const role = S.heat >= 3 ? roles[Math.floor(Math.random()*roles.length)] : 'chaser';
+    policeData.set(m, { speed: CFG.police.baseSpd, aggression: 0.28+S.heat*0.12, role, nmCooldown: 0 });
   }
-
   for (const [m, d] of policeData) {
-    const targetSpeed = S.speed * (0.62 + d.aggression * 0.52) + 4;
-    d.speed = THREE.MathUtils.lerp(d.speed, targetSpeed, dt * 1.6);
+    const targetSpeed = S.speed*(0.62+d.aggression*.52)+4;
+    d.speed = THREE.MathUtils.lerp(d.speed, targetSpeed, dt*1.6);
     d.speed = Math.max(6, d.speed);
-
-    m.position.z += d.speed * dt;
+    m.position.z += d.speed*dt;
     const dx = playerX - m.position.x;
-
-    if (d.role === 'blocker' && m.position.z < playerZ + 28 && m.position.z > playerZ) {
-      d.speed = Math.max(d.speed, S.speed * 1.05);
-      m.position.x += dx * dt * 2.8;
-    } else if (d.role === 'flanker') {
-      const targetX = playerX + (dx > 0 ? 4 : -4);
-      m.position.x += (targetX - m.position.x) * dt * 1.8;
-    } else {
-      m.position.x += dx * d.aggression * dt * 2.2;
-    }
-
-    const halfW = CFG.road.width / 2 - 1.1;
+    if (d.role==='blocker'&&m.position.z<playerZ+28&&m.position.z>playerZ) { d.speed=Math.max(d.speed,S.speed*1.05); m.position.x+=dx*dt*2.8; }
+    else if (d.role==='flanker') { const tx=playerX+(dx>0?4:-4); m.position.x+=(tx-m.position.x)*dt*1.8; }
+    else m.position.x += dx*d.aggression*dt*2.2;
+    const halfW = CFG.road.width/2-1.1;
     m.position.x = Math.max(-halfW, Math.min(halfW, m.position.x));
-    m.rotation.y = -dx * 0.018;
-
-    // Siren flash
-    if (m.userData.sr && m.userData.sb) {
-      const flash = Math.sin(S.time * 10) > 0;
-      m.userData.sr.material.color.setHex(flash ? 0xff0000 : 0x330000);
-      m.userData.sb.material.color.setHex(flash ? 0x0000ff : 0x000033);
+    m.rotation.y = -dx*0.018;
+    if (m.userData.sr&&m.userData.sb) {
+      const flash = Math.sin(S.time*10)>0;
+      m.userData.sr.material.color.setHex(flash?0xff0000:0x330000);
+      m.userData.sb.material.color.setHex(flash?0x0000ff:0x000033);
     }
-
-    if (d.nmCooldown > 0) d.nmCooldown -= dt;
-
-    // Despawn
-    if (m.position.z < playerZ - 140 || m.position.z > playerZ + 90) {
-      policeData.delete(m);
-      policePool.release(m);
-    }
+    if (d.nmCooldown>0) d.nmCooldown-=dt;
+    if (m.position.z<playerZ-140||m.position.z>playerZ+90) { policeData.delete(m); policePool.release(m); }
   }
 }
 
@@ -1102,201 +1463,158 @@ function updatePolice(dt) {
    TRAFFIC AI
 ═══════════════════════════════════════════ */
 let trafficSpawnTimer = 0;
-
 function updateTraffic(dt) {
   trafficSpawnTimer += dt;
   if (trafficPool.size() < Q().maxTrf && trafficSpawnTimer > 0.65) {
     trafficSpawnTimer = 0;
     const m = trafficPool.get();
-    const lane = Math.floor(Math.random() * CFG.road.lanes);
-    const laneW = CFG.road.width / CFG.road.lanes;
-    const x = -CFG.road.width / 2 + laneW / 2 + lane * laneW;
-    const ahead = Math.random() > 0.3;
-    m.position.set(x, 0, ahead ? playerZ + 50 + Math.random() * 95 : playerZ - 22 - Math.random() * 28);
-    trafficData.set(m, { speed: CFG.traffic.baseSpd * (0.5 + Math.random() * 0.65), lane, laneTimer: 4 + Math.random() * 7, nmCooldown: 0 });
+    const lane = Math.floor(Math.random()*CFG.road.lanes);
+    const laneW = CFG.road.width/CFG.road.lanes;
+    const x = -CFG.road.width/2+laneW/2+lane*laneW;
+    const ahead = Math.random()>.3;
+    m.position.set(x, 0, ahead?playerZ+50+Math.random()*95:playerZ-22-Math.random()*28);
+    trafficData.set(m, { speed: CFG.traffic.baseSpd*(0.5+Math.random()*.65), lane, laneTimer:4+Math.random()*7, nmCooldown:0, frozen:0 });
   }
-
   for (const [m, d] of trafficData) {
-    m.position.z += d.speed * dt;
-    d.laneTimer -= dt;
-    if (d.laneTimer <= 0 && Math.random() < 0.14) {
-      d.laneTimer = 5 + Math.random() * 8;
-      d.lane = Math.max(0, Math.min(CFG.road.lanes - 1, d.lane + (Math.random() > 0.5 ? 1 : -1)));
-    }
-    const laneW = CFG.road.width / CFG.road.lanes;
-    const targetX = -CFG.road.width / 2 + laneW / 2 + d.lane * laneW;
-    m.position.x += (targetX - m.position.x) * dt * 1.8;
-
-    if (d.nmCooldown > 0) d.nmCooldown -= dt;
-
-    if (m.position.z < playerZ - 75 || m.position.z > playerZ + 185) {
-      trafficData.delete(m);
-      trafficPool.release(m);
-    }
+    if (hasPowerup('freeze')) { d.frozen=1; }
+    else { d.frozen=Math.max(0,d.frozen-dt*0.5); }
+    if (d.frozen>0.5) { m.material && (m.material.color = new THREE.Color(0x88ccff)); continue; }
+    m.position.z += d.speed*dt;
+    d.laneTimer-=dt;
+    if (d.laneTimer<=0&&Math.random()<.14) { d.laneTimer=5+Math.random()*8; d.lane=Math.max(0,Math.min(CFG.road.lanes-1,d.lane+(Math.random()>.5?1:-1))); }
+    const laneW=CFG.road.width/CFG.road.lanes;
+    const targetX=-CFG.road.width/2+laneW/2+d.lane*laneW;
+    m.position.x+=(targetX-m.position.x)*dt*1.8;
+    if (d.nmCooldown>0) d.nmCooldown-=dt;
+    if (m.position.z<playerZ-75||m.position.z>playerZ+185) { trafficData.delete(m); trafficPool.release(m); }
   }
 }
 
 /* ═══════════════════════════════════════════
-   COINS & REPAIRS
+   PICKUPS
 ═══════════════════════════════════════════ */
-let coinSpawnTimer = 0, repairSpawnTimer = 0;
-
+let coinSpawnTimer=0, repairSpawnTimer=0;
 function updatePickups(dt) {
-  coinSpawnTimer += dt;
-  repairSpawnTimer += dt;
-
-  if (coinSpawnTimer > 0.45 && coinPool.size() < 14) {
-    coinSpawnTimer = 0;
-    const m = coinPool.get();
-    const lane = Math.floor(Math.random() * CFG.road.lanes);
-    const laneW = CFG.road.width / CFG.road.lanes;
-    m.position.set(-CFG.road.width / 2 + laneW / 2 + lane * laneW, 1.05, playerZ + 72 + Math.random() * 95);
-    coinData.set(m, {});
+  coinSpawnTimer+=dt; repairSpawnTimer+=dt;
+  if (coinSpawnTimer>.45&&coinPool.size()<14) {
+    coinSpawnTimer=0;
+    const m=coinPool.get();
+    const lane=Math.floor(Math.random()*CFG.road.lanes);
+    const laneW=CFG.road.width/CFG.road.lanes;
+    m.position.set(-CFG.road.width/2+laneW/2+lane*laneW,1.05,playerZ+72+Math.random()*95);
+    coinData.set(m,{});
   }
-
-  if (repairSpawnTimer > 9 && repairPool.size() < 3 && S.hp < 75) {
-    repairSpawnTimer = 0;
-    const m = repairPool.get();
-    const lane = Math.floor(Math.random() * CFG.road.lanes);
-    const laneW = CFG.road.width / CFG.road.lanes;
-    m.position.set(-CFG.road.width / 2 + laneW / 2 + lane * laneW, 0.82, playerZ + 95 + Math.random() * 75);
-    repairData.set(m, {});
+  if (repairSpawnTimer>9&&repairPool.size()<3&&S.hp<75) {
+    repairSpawnTimer=0;
+    const m=repairPool.get();
+    const lane=Math.floor(Math.random()*CFG.road.lanes);
+    const laneW=CFG.road.width/CFG.road.lanes;
+    m.position.set(-CFG.road.width/2+laneW/2+lane*laneW,.82,playerZ+95+Math.random()*75);
+    repairData.set(m,{});
   }
-
-  for (const [m] of coinData) {
-    m.rotation.y += dt * 2.8;
-    m.position.y = 1.05 + Math.sin(S.time * 2.8 + m.position.z) * 0.18;
-    if (m.position.z < playerZ - 32) { coinData.delete(m); coinPool.release(m); }
-  }
-
-  for (const [m] of repairData) {
-    m.rotation.y += dt * 2.2;
-    m.position.y = 0.82 + Math.sin(S.time * 2.1 + m.position.z) * 0.14;
-    if (m.position.z < playerZ - 32) { repairData.delete(m); repairPool.release(m); }
-  }
+  for (const [m] of coinData) { m.rotation.y+=dt*2.8; m.position.y=1.05+Math.sin(S.time*2.8+m.position.z)*.18; if (m.position.z<playerZ-32) { coinData.delete(m); coinPool.release(m); } }
+  for (const [m] of repairData) { m.rotation.y+=dt*2.2; m.position.y=.82+Math.sin(S.time*2.1+m.position.z)*.14; if (m.position.z<playerZ-32) { repairData.delete(m); repairPool.release(m); } }
 }
 
 /* ═══════════════════════════════════════════
    ROADBLOCKS
 ═══════════════════════════════════════════ */
-let roadblockTimer = 0;
-
+let roadblockTimer=0;
 function updateRoadblocks(dt) {
-  roadblockTimer += dt;
-  const interval = Math.max(9, 32 - S.heat * 4);
-
-  if (roadblockTimer > interval && S.heat >= 2 && roadblockPool.size() < 8) {
-    roadblockTimer = 0;
-    const nb = 2 + Math.floor(Math.random() * 2);
-    const startLane = Math.floor(Math.random() * (CFG.road.lanes - nb + 1));
-    const laneW = CFG.road.width / CFG.road.lanes;
-    const bz = playerZ + 85 + Math.random() * 55;
-    for (let i = 0; i < nb; i++) {
-      const m = roadblockPool.get();
-      m.position.set(-CFG.road.width / 2 + laneW / 2 + (startLane + i) * laneW, 0.58, bz);
-      m.rotation.y = (Math.random() - 0.5) * 0.3;
-      roadblockData.set(m, {});
+  roadblockTimer+=dt;
+  const interval=Math.max(9,32-S.heat*4);
+  if (roadblockTimer>interval&&S.heat>=2&&roadblockPool.size()<8) {
+    roadblockTimer=0;
+    const nb=2+Math.floor(Math.random()*2);
+    const startLane=Math.floor(Math.random()*(CFG.road.lanes-nb+1));
+    const laneW=CFG.road.width/CFG.road.lanes;
+    const bz=playerZ+85+Math.random()*55;
+    for (let i=0;i<nb;i++) {
+      const m=roadblockPool.get();
+      m.position.set(-CFG.road.width/2+laneW/2+(startLane+i)*laneW,.58,bz);
+      m.rotation.y=(Math.random()-.5)*.3;
+      roadblockData.set(m,{});
     }
   }
-
-  for (const [m] of roadblockData) {
-    if (m.position.z < playerZ - 45) { roadblockData.delete(m); roadblockPool.release(m); }
-  }
+  for (const [m] of roadblockData) { if (m.position.z<playerZ-45) { roadblockData.delete(m); roadblockPool.release(m); } }
 }
 
 /* ═══════════════════════════════════════════
-   COLLISION DETECTION
+   SPATIAL HASH + COLLISION (O(1) lookup)
 ═══════════════════════════════════════════ */
+function buildSpatialHash() {
+  spatialHash.clear();
+  for (const [m] of policeData) spatialHash.insert({ mesh: m, type: 'police', data: policeData.get(m) }, m.position.x, m.position.z);
+  for (const [m] of trafficData) spatialHash.insert({ mesh: m, type: 'traffic', data: trafficData.get(m) }, m.position.x, m.position.z);
+  for (const [m] of coinData) spatialHash.insert({ mesh: m, type: 'coin' }, m.position.x, m.position.z);
+  for (const [m] of repairData) spatialHash.insert({ mesh: m, type: 'repair' }, m.position.x, m.position.z);
+  for (const [m] of powerupData) spatialHash.insert({ mesh: m, type: 'powerup', data: powerupData.get(m) }, m.position.x, m.position.z);
+  for (const [m] of roadblockData) spatialHash.insert({ mesh: m, type: 'roadblock' }, m.position.x, m.position.z);
+}
+
 function checkCollisions() {
   if (S.invTimer > 0) return;
+  const nearby = spatialHash.query(playerX, playerZ, 8);
+  for (const obj of nearby) {
+    const m = obj.mesh;
+    const dx = Math.abs(playerX - m.position.x);
+    const dz = Math.abs(playerZ - m.position.z);
 
-  // Police
-  for (const [m, d] of policeData) {
-    if (Math.abs(playerX - m.position.x) < 1.8 && Math.abs(playerZ - m.position.z) < 2.1) {
-      dealDamage(CFG.hp.polHit);
-      S.speed *= 0.8;
+    if (obj.type === 'police' && dx < 1.8 && dz < 2.1) {
+      if (!hasPowerup('ghost') && !hasPowerup('shield')) { dealDamage(CFG.hp.polHit); S.speed*=.8; }
       m.position.x += (m.position.x - playerX) * 0.5;
-      d.speed *= 0.6;
+      if (obj.data) obj.data.speed *= 0.6;
     }
-  }
-
-  // Traffic
-  for (const [m, d] of trafficData) {
-    if (Math.abs(playerX - m.position.x) < 1.8 && Math.abs(playerZ - m.position.z) < 2.1) {
-      dealDamage(CFG.hp.trfHit);
-      S.speed *= 0.76;
+    else if (obj.type === 'traffic' && dx < 1.8 && dz < 2.1) {
+      if (!hasPowerup('ghost') && !hasPowerup('shield')) { dealDamage(CFG.hp.trfHit); S.speed*=.76; }
       m.position.z += 3.5;
-      d.speed *= 0.4;
-      spawnParticles(new THREE.Vector3(playerX, 1, playerZ), 0xff8800, 8, 1.5, 4);
+      if (obj.data) obj.data.speed *= 0.4;
+      spawnParticles(new THREE.Vector3(playerX,1,playerZ),0xff8800,8,1.5,4);
     }
-  }
-
-  // Roadblocks
-  for (const [m] of roadblockData) {
-    if (Math.abs(playerX - m.position.x) < 1.5 && Math.abs(playerZ - m.position.z) < 1.1) {
+    else if (obj.type === 'roadblock' && dx < 1.5 && dz < 1.1) {
+      if (hasPowerup('ghost')) { roadblockData.delete(m); roadblockPool.release(m); S.missionStats.evade++; continue; }
       if (input.nitro && S.nitro > 5) {
-        spawnParticles(m.position.clone(), 0xff4400, 14, 2, 6);
-        roadblockData.delete(m);
-        roadblockPool.release(m);
-        S.score += 220;
-        addXP(28);
-        notify('SMASHED! +220', '#ff6600');
-      } else {
-        dealDamage(CFG.hp.roadblockHit);
-        S.speed *= 0.38;
-        S.lateralV *= -0.45;
-        spawnParticles(m.position.clone(), 0xff4400, 8, 1.5, 4);
-        roadblockData.delete(m);
-        roadblockPool.release(m);
-      }
+        spawnParticles(m.position.clone(),0xff4400,14,2,6);
+        roadblockData.delete(m); roadblockPool.release(m);
+        S.score+=220; addXP(28); S.missionStats.evade++;
+        notify('SMASHED! +220','#ff6600');
+      } else { dealDamage(CFG.hp.roadblockHit); S.speed*=.38; S.lateralV*=-.45; spawnParticles(m.position.clone(),0xff4400,8,1.5,4); roadblockData.delete(m); roadblockPool.release(m); }
     }
-  }
-
-  // Coins
-  for (const [m] of coinData) {
-    if (Math.abs(playerX - m.position.x) < 1.95 && Math.abs(playerZ - m.position.z) < 2.2) {
-      S.coins++;
-      S.totalCoins++;
-      addXP(CFG.coin.xpAmt);
-      playCoinSound();
-      spawnParticles(m.position.clone(), 0xffaa00, 5, 1, 3);
-      coinData.delete(m);
-      coinPool.release(m);
+    else if (obj.type === 'coin' && dx < 1.95 && dz < 2.2) {
+      S.coins++; S.totalCoins++; addXP(CFG.coin.xpAmt); playCoinSound();
+      spawnParticles(m.position.clone(),0xffaa00,5,1,3);
+      coinData.delete(m); coinPool.release(m);
     }
-  }
-
-  // Repairs
-  for (const [m] of repairData) {
-    if (Math.abs(playerX - m.position.x) < 1.95 && Math.abs(playerZ - m.position.z) < 2.2) {
-      S.hp = Math.min(100, S.hp + CFG.coin.healAmt);
-      addXP(10);
-      notify('REPAIRED +' + CFG.coin.healAmt + ' HP', '#00ff44');
-      spawnParticles(m.position.clone(), 0x00ff44, 8, 1, 4);
-      repairData.delete(m);
-      repairPool.release(m);
+    else if (obj.type === 'repair' && dx < 1.95 && dz < 2.2) {
+      S.hp=Math.min(100,S.hp+CFG.coin.healAmt); addXP(10);
+      notify('REPAIRED +'+CFG.coin.healAmt+' HP','#00ff44');
+      spawnParticles(m.position.clone(),0x00ff44,8,1,4);
+      repairData.delete(m); repairPool.release(m);
+    }
+    else if (obj.type === 'powerup' && dx < 1.95 && dz < 2.2) {
+      activatePowerup(obj.data.type);
+      powerupData.delete(m); powerupPool.release(m);
     }
   }
 }
 
-/* ═══════════════════════════════════════════
-   NEAR MISS DETECTION
-═══════════════════════════════════════════ */
 function checkNearMisses() {
-  const nearDist = 3.1, collDist = 1.8, zRange = 3.2;
-  const all = [...policeData.entries(), ...trafficData.entries()];
-  for (const [m, d] of all) {
+  const nearby = spatialHash.query(playerX, playerZ, 5);
+  for (const obj of nearby) {
+    if (obj.type !== 'police' && obj.type !== 'traffic') continue;
+    const m = obj.mesh;
     const dx = Math.abs(playerX - m.position.x);
     const dz = Math.abs(playerZ - m.position.z);
-    if (dz < zRange && dx > collDist && dx < nearDist) {
+    const d = obj.data;
+    if (dz < 3.2 && dx > 1.8 && dx < 3.1) {
       if (!d.nmCooldown || d.nmCooldown <= 0) {
-        S.combo += CFG.combo.nearMissBonus;
-        S.comboTimer = 0;
-        const bonus = Math.floor(CFG.combo.nearMissScore * S.combo);
-        S.score += bonus;
-        addXP(14);
-        notify('NEAR MISS +' + bonus, '#00fff0');
-        spawnParticles(new THREE.Vector3(playerX, 1.5, playerZ), 0x00fff0, 5, 1, 3);
-        d.nmCooldown = 2;
+        S.combo += CFG.combo.nearMissBonus; S.comboTimer=0;
+        const bonus=Math.floor(CFG.combo.nearMissScore*S.combo);
+        S.score+=bonus; addXP(14); S.nearMissCount++;
+        S.missionStats.near++;
+        notify('NEAR MISS +'+bonus,'#00fff0');
+        spawnParticles(new THREE.Vector3(playerX,1.5,playerZ),0x00fff0,5,1,3);
+        d.nmCooldown=2;
       }
     }
   }
@@ -1306,104 +1624,56 @@ function checkNearMisses() {
    COMBO SYSTEM
 ═══════════════════════════════════════════ */
 function updateCombo(dt) {
-  S.comboTimer += dt;
-  if (S.comboTimer > CFG.combo.resetDelay) {
-    S.combo = Math.max(1, S.combo - CFG.combo.decay * dt);
-  }
-  if (S.combo > S.maxCombo) S.maxCombo = S.combo;
-
-  const cdEl = document.getElementById('cdB');
-  if (S.combo > 1.1) {
-    cdEl.classList.add('sh');
-    document.getElementById('cdM').textContent = 'x' + S.combo.toFixed(1);
-  } else {
-    cdEl.classList.remove('sh');
-  }
-
-  const drEl = document.getElementById('drB');
-  if (S.drifting) {
-    drEl.classList.add('sh');
-    drEl.textContent = 'DRIFT ' + S.driftTimer.toFixed(1) + 's';
-  } else {
-    drEl.classList.remove('sh');
-  }
+  S.comboTimer+=dt;
+  if (S.comboTimer>CFG.combo.resetDelay) S.combo=Math.max(1,S.combo-CFG.combo.decay*dt);
+  if (S.combo>S.maxCombo) S.maxCombo=S.combo;
+  const cdEl=document.getElementById('cdB');
+  if (S.combo>1.1) { cdEl.classList.add('sh'); document.getElementById('cdM').textContent='x'+S.combo.toFixed(1); }
+  else cdEl.classList.remove('sh');
+  const drEl=document.getElementById('drB');
+  if (S.drifting) { drEl.classList.add('sh'); drEl.textContent='DRIFT '+S.driftTimer.toFixed(1)+'s'; }
+  else drEl.classList.remove('sh');
 }
 
 /* ═══════════════════════════════════════════
    WEATHER SYSTEM
 ═══════════════════════════════════════════ */
-let lightningTimer = 10, lightningFlash = 0;
-
+let lightningTimer=10, lightningFlash=0;
 function updateWeather(dt) {
-  S.weatherTimer += dt;
-  if (S.weatherTimer > 28) {
-    S.weatherTimer = 0;
-    const weathers = ['clear', 'clear', 'clear', 'rain', 'rain', 'storm', 'fog'];
-    S.weather = weathers[Math.floor(Math.random() * weathers.length)];
-    if (S.weather !== 'clear') notify(S.weather.toUpperCase() + ' INCOMING', '#8899bb');
+  S.weatherTimer+=dt;
+  if (S.weatherTimer>28) {
+    S.weatherTimer=0;
+    const weathers=['clear','clear','clear','rain','rain','storm','fog'];
+    S.weather=weathers[Math.floor(Math.random()*weathers.length)];
+    if (S.weather!=='clear') notify(S.weather.toUpperCase()+' INCOMING','#8899bb');
   }
-
-  // Fog density
-  let targetDensity = 0.007;
-  if (S.weather === 'fog')   targetDensity = 0.020;
-  if (S.weather === 'rain')  targetDensity = 0.010;
-  if (S.weather === 'storm') targetDensity = 0.013;
-  scene.fog.density = THREE.MathUtils.lerp(scene.fog.density, targetDensity, dt * 0.45);
-
-  // Lighting
-  const targetAmbient = S.weather === 'fog' ? 0.5 : S.weather === 'storm' ? 0.35 : 1.8;
-  ambLight.intensity = THREE.MathUtils.lerp(ambLight.intensity, targetAmbient + lightningFlash * 2.5, dt * 3.5);
-
-  // Lightning
-  if (S.weather === 'storm') {
-    lightningTimer -= dt;
-    if (lightningTimer <= 0) {
-      lightningTimer = 5 + Math.random() * 14;
-      lightningFlash = 1;
-    }
-  }
-  if (lightningFlash > 0) lightningFlash = Math.max(0, lightningFlash - dt * 6);
-
-  // Heat increases over time
-  S.heat = Math.min(CFG.heat.max, S.heat + CFG.heat.rate * dt);
-  S.time += dt;
+  const biome=BIOMES[S.currentBiome];
+  let targetDensity=biome.fogDensity;
+  if (S.weather==='fog')   targetDensity=0.020;
+  if (S.weather==='rain')  targetDensity=Math.max(targetDensity,0.010);
+  if (S.weather==='storm') targetDensity=Math.max(targetDensity,0.013);
+  scene.fog.density=THREE.MathUtils.lerp(scene.fog.density,targetDensity,dt*.45);
+  if (S.weather==='storm') { lightningTimer-=dt; if (lightningTimer<=0) { lightningTimer=5+Math.random()*14; lightningFlash=1; } }
+  if (lightningFlash>0) lightningFlash=Math.max(0,lightningFlash-dt*6);
+  S.heat=Math.min(CFG.heat.max,S.heat+CFG.heat.rate*dt);
+  S.time+=dt;
 }
 
 /* ═══════════════════════════════════════════
-   CAMERA FOLLOW — always positioned behind car
+   CAMERA
 ═══════════════════════════════════════════ */
 function updateCamera(dt) {
-  const maxSpd = CFG.player.maxSpd * carStat('spd');
-  const speedRatio = Math.min(1, S.speed / Math.max(1, maxSpd));
-
-  // Follow position
-  const followDist = 12 + speedRatio * 5;
-  const followHeight = 4.5 + speedRatio * 2.5;
-
-  const targetPos = new THREE.Vector3(
-    playerX * 0.32,
-    playerMesh ? playerMesh.position.y + followHeight : followHeight,
-    playerZ - followDist
-  );
-
-  camera.position.lerp(targetPos, dt * 4);
-
-  // Camera shake
-  if (S.shakeAmt > 0.01) {
-    camera.position.x += (Math.random() - 0.5) * S.shakeAmt;
-    camera.position.y += (Math.random() - 0.5) * S.shakeAmt * 0.35;
-    S.shakeAmt *= 0.85;
-  } else {
-    S.shakeAmt = 0;
-  }
-
-  // Look ahead
-  const lookTarget = new THREE.Vector3(playerX * 0.5, 1.2, playerZ + 5 + speedRatio * 5);
+  const maxSpd=CFG.player.maxSpd*carStat('spd');
+  const speedRatio=Math.min(1,S.speed/Math.max(1,maxSpd));
+  const followDist=12+speedRatio*5;
+  const followHeight=4.5+speedRatio*2.5;
+  const targetPos=new THREE.Vector3(playerX*.32,playerMesh?playerMesh.position.y+followHeight:followHeight,playerZ-followDist);
+  camera.position.lerp(targetPos,dt*4);
+  if (S.shakeAmt>.01) { camera.position.x+=(Math.random()-.5)*S.shakeAmt; camera.position.y+=(Math.random()-.5)*S.shakeAmt*.35; S.shakeAmt*=.85; } else S.shakeAmt=0;
+  const lookTarget=new THREE.Vector3(playerX*.5,1.2,playerZ+5+speedRatio*5);
   camera.lookAt(lookTarget);
-
-  // FOV
-  const targetFOV = 62 + speedRatio * 20;
-  camera.fov = THREE.MathUtils.lerp(camera.fov, targetFOV, dt * 2.5);
+  const targetFOV=62+speedRatio*20;
+  camera.fov=THREE.MathUtils.lerp(camera.fov,targetFOV,dt*2.5);
   camera.updateProjectionMatrix();
 }
 
@@ -1411,215 +1681,140 @@ function updateCamera(dt) {
    SLOW MOTION
 ═══════════════════════════════════════════ */
 function updateSlowMo(rawDt) {
-  if (S.slowTimer > 0) {
-    S.slowTimer -= rawDt;
-    if (S.slowTimer <= 0) {
-      S.slowTarget = 1;
-      document.getElementById('smOv').classList.remove('sh');
-    }
-  }
-  S.slowScale = THREE.MathUtils.lerp(S.slowScale, S.slowTarget, rawDt * 5);
+  if (S.slowTimer>0) { S.slowTimer-=rawDt; if (S.slowTimer<=0) { S.slowTarget=1; document.getElementById('smOv').classList.remove('sh'); } }
+  S.slowScale=THREE.MathUtils.lerp(S.slowScale,S.slowTarget,rawDt*5);
 }
 
 /* ═══════════════════════════════════════════
    HUD UPDATE
 ═══════════════════════════════════════════ */
-const spdCtx = document.getElementById('spdC').getContext('2d');
-const mmCtx  = document.getElementById('mmC').getContext('2d');
+const spdCtx=document.getElementById('spdC').getContext('2d');
+const mmCtx=document.getElementById('mmC').getContext('2d');
 
 function updateHUD() {
-  document.getElementById('hDst').textContent = S.dist;
-  document.getElementById('hScr').textContent = S.score;
-  document.getElementById('hCns').textContent = S.coins;
-  document.getElementById('hpB').style.width  = Math.max(0, S.hp) + '%';
-  document.getElementById('niB').style.width  = S.nitro + '%';
-  document.getElementById('xpB').style.width  = S.level > 0 ? (S.xp / xpForLevel(S.level)) * 100 + '%' : '0%';
-  document.getElementById('hLv').textContent  = S.level;
-
-  let heatHTML = '';
-  for (let i = 1; i <= 5; i++) {
-    heatHTML += `<span class="${i <= Math.floor(S.heat) ? 'a' : ''}">★</span>`;
-  }
-  document.getElementById('hHt').innerHTML = heatHTML;
-
-  document.getElementById('nVig').classList.toggle('sh', input.nitro && S.nitro > 0);
-
+  document.getElementById('hDst').textContent=S.dist;
+  document.getElementById('hScr').textContent=S.score;
+  document.getElementById('hCns').textContent=S.coins;
+  document.getElementById('hpB').style.width=Math.max(0,S.hp)+'%';
+  document.getElementById('niB').style.width=S.nitro+'%';
+  document.getElementById('xpB').style.width=S.level>0?(S.xp/xpForLevel(S.level))*100+'%':'0%';
+  document.getElementById('hLv').textContent=S.level;
+  let heatHTML='';
+  for (let i=1;i<=5;i++) heatHTML+=`<span class="${i<=Math.floor(S.heat)?'a':''}">★</span>`;
+  document.getElementById('hHt').innerHTML=heatHTML;
+  document.getElementById('nVig').classList.toggle('sh',input.nitro&&S.nitro>0);
   drawSpeedometer();
   drawMinimap();
 }
 
 function drawSpeedometer() {
-  const c = spdCtx, w = 130, h = 80;
-  c.clearRect(0, 0, w, h);
-  const cx = w / 2, cy = h - 4, r = 54;
-  const kmh = Math.floor(S.speed * 3.6);
-  const maxKmh = Math.floor(CFG.player.maxSpd * carStat('spd') * 3.6);
-  const ratio = Math.min(1, kmh / Math.max(1, maxKmh));
-
-  c.beginPath(); c.arc(cx, cy, r, Math.PI, 2 * Math.PI);
-  c.strokeStyle = 'rgba(255,255,255,0.06)'; c.lineWidth = 5; c.stroke();
-
-  const grad = c.createLinearGradient(cx - r, cy, cx + r, cy);
-  grad.addColorStop(0, '#00fff0'); grad.addColorStop(0.55, '#ffaa00'); grad.addColorStop(1, '#ff0044');
-  const endAngle = Math.PI + Math.PI * ratio;
-  c.beginPath(); c.arc(cx, cy, r, Math.PI, endAngle);
-  c.strokeStyle = grad; c.lineWidth = 5; c.stroke();
-
-  c.beginPath(); c.moveTo(cx, cy);
-  c.lineTo(cx + Math.cos(endAngle) * (r - 7), cy + Math.sin(endAngle) * (r - 7));
-  c.strokeStyle = '#ff0066'; c.lineWidth = 2; c.stroke();
-
-  c.fillStyle = '#00fff0'; c.font = '900 20px Orbitron'; c.textAlign = 'center';
-  c.fillText(kmh, cx, cy - 15);
-  c.fillStyle = 'rgba(255,255,255,0.32)'; c.font = '600 8px Orbitron';
-  c.fillText('KM/H', cx, cy - 4);
+  const c=spdCtx,w=130,h=80;
+  c.clearRect(0,0,w,h);
+  const cx=w/2,cy=h-4,r=54;
+  const kmh=Math.floor(S.speed*3.6);
+  const maxKmh=Math.floor(CFG.player.maxSpd*carStat('spd')*3.6);
+  const ratio=Math.min(1,kmh/Math.max(1,maxKmh));
+  c.beginPath();c.arc(cx,cy,r,Math.PI,2*Math.PI);c.strokeStyle='rgba(255,255,255,0.06)';c.lineWidth=5;c.stroke();
+  const grad=c.createLinearGradient(cx-r,cy,cx+r,cy);
+  grad.addColorStop(0,'#00fff0');grad.addColorStop(.55,'#ffaa00');grad.addColorStop(1,'#ff0044');
+  const endAngle=Math.PI+Math.PI*ratio;
+  c.beginPath();c.arc(cx,cy,r,Math.PI,endAngle);c.strokeStyle=grad;c.lineWidth=5;c.stroke();
+  c.beginPath();c.moveTo(cx,cy);c.lineTo(cx+Math.cos(endAngle)*(r-7),cy+Math.sin(endAngle)*(r-7));c.strokeStyle='#ff0066';c.lineWidth=2;c.stroke();
+  c.fillStyle='#00fff0';c.font='900 20px Orbitron';c.textAlign='center';c.fillText(kmh,cx,cy-15);
+  c.fillStyle='rgba(255,255,255,0.32)';c.font='600 8px Orbitron';c.fillText('KM/H',cx,cy-4);
 }
 
 function drawMinimap() {
-  const c = mmCtx, w = 100, h = 100;
-  c.clearRect(0, 0, w, h);
-  c.fillStyle = 'rgba(5,5,20,0.72)'; c.fillRect(0, 0, w, h);
-  const cx = w / 2, cy = h / 2, rw = 26;
-
-  // Road strip
-  c.fillStyle = 'rgba(30,30,50,0.5)'; c.fillRect(cx - rw / 2, 0, rw, h);
-
-  // Player dot
-  const px = cx + (playerX / (CFG.road.width / 2)) * (rw / 2);
-  c.fillStyle = '#00ff88'; c.beginPath(); c.arc(px, cy, 3.2, 0, Math.PI * 2); c.fill();
-
-  // Police dots
-  for (const [m] of policeData) {
-    const rx = cx + (m.position.x / (CFG.road.width / 2)) * (rw / 2);
-    const rz = cy - (m.position.z - playerZ) * 0.24;
-    if (rz > 2 && rz < h - 2) {
-      c.fillStyle = '#ff0044'; c.beginPath(); c.arc(rx, rz, 2.2, 0, Math.PI * 2); c.fill();
-    }
-  }
-
-  // Traffic dots
-  for (const [m] of trafficData) {
-    const rx = cx + (m.position.x / (CFG.road.width / 2)) * (rw / 2);
-    const rz = cy - (m.position.z - playerZ) * 0.24;
-    if (rz > 2 && rz < h - 2) {
-      c.fillStyle = '#ffaa00'; c.beginPath(); c.arc(rx, rz, 1.6, 0, Math.PI * 2); c.fill();
-    }
-  }
-
-  // Roadblock marks
-  for (const [m] of roadblockData) {
-    const rx = cx + (m.position.x / (CFG.road.width / 2)) * (rw / 2);
-    const rz = cy - (m.position.z - playerZ) * 0.24;
-    if (rz > 2 && rz < h - 2) {
-      c.fillStyle = '#ff4400'; c.fillRect(rx - 2, rz - 1, 4, 2);
-    }
-  }
-
-  c.strokeStyle = 'rgba(0,255,240,0.18)'; c.lineWidth = 1; c.strokeRect(0, 0, w, h);
+  const c=mmCtx,w=100,h=100;
+  c.clearRect(0,0,w,h);
+  c.fillStyle='rgba(5,5,20,0.72)';c.fillRect(0,0,w,h);
+  const cx=w/2,cy=h/2,rw=26;
+  c.fillStyle='rgba(30,30,50,0.5)';c.fillRect(cx-rw/2,0,rw,h);
+  const px=cx+(playerX/(CFG.road.width/2))*(rw/2);
+  c.fillStyle='#00ff88';c.beginPath();c.arc(px,cy,3.2,0,Math.PI*2);c.fill();
+  for (const [m] of policeData) { const rx=cx+(m.position.x/(CFG.road.width/2))*(rw/2); const rz=cy-(m.position.z-playerZ)*.24; if (rz>2&&rz<h-2) { c.fillStyle='#ff0044';c.beginPath();c.arc(rx,rz,2.2,0,Math.PI*2);c.fill(); } }
+  for (const [m] of trafficData) { const rx=cx+(m.position.x/(CFG.road.width/2))*(rw/2); const rz=cy-(m.position.z-playerZ)*.24; if (rz>2&&rz<h-2) { c.fillStyle='#ffaa00';c.beginPath();c.arc(rx,rz,1.6,0,Math.PI*2);c.fill(); } }
+  for (const [m] of roadblockData) { const rx=cx+(m.position.x/(CFG.road.width/2))*(rw/2); const rz=cy-(m.position.z-playerZ)*.24; if (rz>2&&rz<h-2) { c.fillStyle='#ff4400';c.fillRect(rx-2,rz-1,4,2); } }
+  if (S.helicopterActive) { const rx=cx+(S.helicopterX/(CFG.road.width/2))*(rw/2); const rz=cy-(S.helicopterZ-playerZ)*.24; if (rz>2&&rz<h-2) { c.fillStyle='#ffffff';c.font='8px sans-serif';c.textAlign='center';c.fillText('🚁',rx,rz); } }
+  c.strokeStyle='rgba(0,255,240,0.18)';c.lineWidth=1;c.strokeRect(0,0,w,h);
 }
 
 /* ═══════════════════════════════════════════
    NOTIFICATIONS
 ═══════════════════════════════════════════ */
-function notify(text, color = '#00fff0') {
-  const el = document.createElement('div');
-  el.className = 'nf';
-  el.style.color = color;
-  el.textContent = text;
-  const area = document.getElementById('nArea');
+function notify(text, color='#00fff0') {
+  const el=document.createElement('div');
+  el.className='nf'; el.style.color=color; el.textContent=text;
+  const area=document.getElementById('nArea');
   area.appendChild(el);
-  requestAnimationFrame(() => el.classList.add('sh'));
-  setTimeout(() => {
-    el.classList.add('fd');
-    el.classList.remove('sh');
-    setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 280);
-  }, 1200);
+  requestAnimationFrame(()=>el.classList.add('sh'));
+  setTimeout(()=>{ el.classList.add('fd'); el.classList.remove('sh'); setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); },280); },1200);
 }
 
-function showDamageFlash() {
-  const el = document.getElementById('dFlash');
-  el.classList.add('sh');
-  setTimeout(() => el.classList.remove('sh'), 140);
-}
+function showDamageFlash() { const el=document.getElementById('dFlash'); el.classList.add('sh'); setTimeout(()=>el.classList.remove('sh'),140); }
 
 /* ═══════════════════════════════════════════
    AUDIO
 ═══════════════════════════════════════════ */
-let audioCtx = null, engineOsc = null, engineGain = null, sirenOsc1 = null, sirenOsc2 = null, sirenGain = null;
-
+let audioCtx=null, engineOsc=null, engineGain=null, sirenOsc1=null, sirenOsc2=null, sirenGain=null;
 function initAudio() {
   if (audioCtx) return;
   try {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    engineOsc = audioCtx.createOscillator();
-    engineOsc.type = 'sawtooth';
-    engineOsc.frequency.value = 80;
-    engineGain = audioCtx.createGain();
-    engineGain.gain.value = 0;
-    const filter = audioCtx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = 420;
-    engineOsc.connect(filter); filter.connect(engineGain); engineGain.connect(audioCtx.destination);
-    engineOsc.start();
-
-    sirenOsc1 = audioCtx.createOscillator(); sirenOsc1.type = 'sine'; sirenOsc1.frequency.value = 600;
-    sirenOsc2 = audioCtx.createOscillator(); sirenOsc2.type = 'sine'; sirenOsc2.frequency.value = 800;
-    sirenGain = audioCtx.createGain(); sirenGain.gain.value = 0;
-    sirenOsc1.connect(sirenGain); sirenOsc2.connect(sirenGain); sirenGain.connect(audioCtx.destination);
-    sirenOsc1.start(); sirenOsc2.start();
+    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    engineOsc=audioCtx.createOscillator(); engineOsc.type='sawtooth'; engineOsc.frequency.value=80;
+    engineGain=audioCtx.createGain(); engineGain.gain.value=0;
+    const filter=audioCtx.createBiquadFilter(); filter.type='lowpass'; filter.frequency.value=420;
+    engineOsc.connect(filter); filter.connect(engineGain); engineGain.connect(audioCtx.destination); engineOsc.start();
+    sirenOsc1=audioCtx.createOscillator(); sirenOsc1.type='sine'; sirenOsc1.frequency.value=600;
+    sirenOsc2=audioCtx.createOscillator(); sirenOsc2.type='sine'; sirenOsc2.frequency.value=800;
+    sirenGain=audioCtx.createGain(); sirenGain.gain.value=0;
+    sirenOsc1.connect(sirenGain); sirenOsc2.connect(sirenGain); sirenGain.connect(audioCtx.destination); sirenOsc1.start(); sirenOsc2.start();
   } catch(e) {}
 }
 
 function updateAudio() {
-  if (!audioCtx || S.vol <= 0) return;
-  const ratio = S.speed / Math.max(1, CFG.player.maxSpd * carStat('spd'));
-  engineOsc.frequency.value = 60 + ratio * 220;
-  engineGain.gain.value = Math.min(0.065, ratio * 0.082) * S.vol;
-
-  let closestPoliceDist = 999;
-  for (const [m] of policeData) {
-    const d = Math.hypot(m.position.x - playerX, m.position.z - playerZ);
-    if (d < closestPoliceDist) closestPoliceDist = d;
-  }
-  sirenGain.gain.value = Math.max(0, 1 - closestPoliceDist / 55) * 0.045 * S.vol;
-  const wave = Math.sin(S.time * 3) * 200;
-  sirenOsc1.frequency.value = 600 + wave;
-  sirenOsc2.frequency.value = 800 - wave;
+  if (!audioCtx||S.vol<=0) return;
+  const ratio=S.speed/Math.max(1,CFG.player.maxSpd*carStat('spd'));
+  engineOsc.frequency.value=60+ratio*220;
+  engineGain.gain.value=Math.min(0.065,ratio*0.082)*S.vol;
+  let closestPoliceDist=999;
+  for (const [m] of policeData) { const d=Math.hypot(m.position.x-playerX,m.position.z-playerZ); if (d<closestPoliceDist) closestPoliceDist=d; }
+  sirenGain.gain.value=Math.max(0,1-closestPoliceDist/55)*0.045*S.vol;
+  const wave=Math.sin(S.time*3)*200;
+  sirenOsc1.frequency.value=600+wave; sirenOsc2.frequency.value=800-wave;
 }
 
 function playCrashSound() {
-  if (!audioCtx || S.vol <= 0) return;
+  if (!audioCtx||S.vol<=0) return;
   try {
-    const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.14, audioCtx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * 0.038));
-    const src = audioCtx.createBufferSource();
-    src.buffer = buf;
-    const g = audioCtx.createGain(); g.gain.value = 0.11 * S.vol;
+    const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*.14,audioCtx.sampleRate);
+    const data=buf.getChannelData(0);
+    for (let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*Math.exp(-i/(audioCtx.sampleRate*.038));
+    const src=audioCtx.createBufferSource(); src.buffer=buf;
+    const g=audioCtx.createGain(); g.gain.value=0.11*S.vol;
     src.connect(g); g.connect(audioCtx.destination); src.start();
   } catch(e) {}
 }
 
 function playCoinSound() {
-  if (!audioCtx || S.vol <= 0) return;
+  if (!audioCtx||S.vol<=0) return;
   try {
-    const o = audioCtx.createOscillator(); o.type = 'sine'; o.frequency.value = 1300;
-    const g = audioCtx.createGain(); g.gain.value = 0.055 * S.vol;
-    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.11);
-    o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.11);
+    const o=audioCtx.createOscillator(); o.type='sine'; o.frequency.value=1300;
+    const g=audioCtx.createGain(); g.gain.value=0.055*S.vol;
+    g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.11);
+    o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+.11);
   } catch(e) {}
 }
 
 function playNitroSound() {
-  if (!audioCtx || S.vol <= 0) return;
+  if (!audioCtx||S.vol<=0) return;
   try {
-    const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.28, audioCtx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.18 * Math.exp(-i / (audioCtx.sampleRate * 0.1));
-    const src = audioCtx.createBufferSource();
-    src.buffer = buf;
-    const f = audioCtx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 700;
-    const g = audioCtx.createGain(); g.gain.value = 0.075 * S.vol;
+    const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*.28,audioCtx.sampleRate);
+    const data=buf.getChannelData(0);
+    for (let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*.18*Math.exp(-i/(audioCtx.sampleRate*.1));
+    const src=audioCtx.createBufferSource(); src.buffer=buf;
+    const f=audioCtx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=700;
+    const g=audioCtx.createGain(); g.gain.value=0.075*S.vol;
     src.connect(f); f.connect(g); g.connect(audioCtx.destination); src.start();
   } catch(e) {}
 }
@@ -1628,213 +1823,177 @@ function playNitroSound() {
    SCREEN MANAGEMENT
 ═══════════════════════════════════════════ */
 function showScreen(id) {
-  ['menuOv', 'hudOv', 'garOv', 'setOv', 'paOv', 'goOv'].forEach(oid => {
-    const el = document.getElementById(oid);
-    el.classList.remove('on');
-    const sc = el.querySelector('.sc');
-    if (sc) sc.classList.remove('on');
+  ['menuOv','hudOv','garOv','setOv','paOv','goOv','lbOv'].forEach(oid => {
+    const el=document.getElementById(oid); el.classList.remove('on');
+    const sc=el.querySelector('.sc'); if (sc) sc.classList.remove('on');
   });
-  const el = document.getElementById(id);
-  if (el) {
-    el.classList.add('on');
-    const sc = el.querySelector('.sc');
-    if (sc) sc.classList.add('on');
-  }
-  const touch = document.getElementById('tCtrl');
-  touch.classList.toggle('on', id === 'hudOv' && ('ontouchstart' in window));
+  const el=document.getElementById(id);
+  if (el) { el.classList.add('on'); const sc=el.querySelector('.sc'); if (sc) sc.classList.add('on'); }
+  const touch=document.getElementById('tCtrl');
+  touch.classList.toggle('on',id==='hudOv'&&('ontouchstart' in window));
 }
 
 function startGame() {
-  initAudio();
-  resetGame();
-  S.screen = 'playing';
-  showScreen('hudOv');
+  initAudio(); resetGame(); S.screen='playing'; showScreen('hudOv');
+  showGhostCar(); startMission();
 }
 
 function resetGame() {
-  // Reset state
   Object.assign(S, {
-    score: 0, dist: 0, coins: 0, hp: 100, nitro: 100, heat: 1,
-    speed: 0, lateralV: 0, topSpeed: 0, time: 0, weatherTimer: 0,
-    weather: 'clear', invTimer: 0, shakeAmt: 0,
-    combo: 1, comboTimer: 0, maxCombo: 1, driftTimer: 0, drifting: false,
-    sessionXP: 0, slowScale: 1, slowTarget: 1, slowTimer: 0,
+    score:0, dist:0, coins:0, hp:100, nitro:100, heat:1,
+    speed:0, lateralV:0, topSpeed:0, time:0, weatherTimer:0,
+    weather:'clear', invTimer:0, shakeAmt:0,
+    combo:1, comboTimer:0, maxCombo:1, driftTimer:0, drifting:false, totalDrift:0,
+    sessionXP:0, slowScale:1, slowTarget:1, slowTimer:0,
+    dayTime:0.25, currentBiome:0, biomeProgress:0, biomeTransition:0,
+    currentMission:null, missionProgress:0, missionsCompleted:0,
+    missionStats:{ near:0, evade:0, drift:0 }, nearMissCount:0,
+    activePowerups:{}, shieldHP:0, magnetRadius:0,
+    helicopterActive:false, helicopterX:0, helicopterZ:0, helicopterY:20,
+    helicopterTimer:0, helicopterSpawnTimer:0,
+    spikeStrips:[], replayBuffer:[], recordingReplay:true,
   });
-  SI.left = SI.right = SI.gas = SI.brake = 0;
-  playerX = 0; playerZ = 0;
+  SI.left=SI.right=SI.gas=SI.brake=0;
+  playerX=0; playerZ=0;
+  biomeTimer=0; lastBiomeName='';
+  puSpawnTimer=0;
 
-  // Release all pools
-  for (const [m] of policeData) { policePool.release(m); } policeData.clear();
-  for (const [m] of trafficData) { trafficPool.release(m); } trafficData.clear();
-  for (const [m] of coinData) { coinPool.release(m); } coinData.clear();
-  for (const [m] of repairData) { repairPool.release(m); } repairData.clear();
-  for (const [m] of particleData) { particlePool.release(m); } particleData.clear();
-  for (const [m] of skidData) { skidPool.release(m); } skidData.clear();
-  for (const [m] of roadblockData) { roadblockPool.release(m); } roadblockData.clear();
+  for (const [m] of policeData) policePool.release(m); policeData.clear();
+  for (const [m] of trafficData) trafficPool.release(m); trafficData.clear();
+  for (const [m] of coinData) coinPool.release(m); coinData.clear();
+  for (const [m] of repairData) repairPool.release(m); repairData.clear();
+  for (const [m] of powerupData) powerupPool.release(m); powerupData.clear();
+  for (const [m] of particleData) particlePool.release(m); particleData.clear();
+  for (const [m] of skidData) skidPool.release(m); skidData.clear();
+  for (const [m] of roadblockData) roadblockPool.release(m); roadblockData.clear();
 
-  // Clear road segments
-  for (const [, seg] of roadSegments) {
+  // Clear spike strips
+  spikeStripMeshes.forEach(m => scene.remove(m));
+  spikeStripMeshes = [];
+
+  for (const [,seg] of roadSegments) {
     roadGroup.remove(seg);
-    seg.traverse(c => { if (c.isMesh) { c.geometry.dispose(); if (c.material && !isSharedMat(c.material)) c.material.dispose(); } });
+    seg.traverse(c=>{ if(c.isMesh){c.geometry.dispose();if(c.material&&!isSharedMat(c.material))c.material.dispose();} });
   }
   roadSegments.clear();
 
-  // Remove old player mesh
-  if (playerMesh) { scene.remove(playerMesh); playerMesh = null; }
+  if (playerMesh) { scene.remove(playerMesh); playerMesh=null; }
+  if (ghostMesh) { ghostMesh.visible=false; }
+  if (helicopterMesh) { helicopterMesh.visible=false; }
 
-  // Create new player mesh
-  const carCfg = CARS[S.selectedCar];
-  playerMesh = createCar(carCfg.col, 'player');
-  playerMesh.position.set(0, 0, 0);
+  const carCfg=CARS[S.selectedCar];
+  playerMesh=createCar(carCfg.col,'player');
+  playerMesh.position.set(0,0,0);
   scene.add(playerMesh);
 
-  // Build initial road segments
-  for (let z = -CFG.road.segLen; z < CFG.road.segLen * 4; z += CFG.road.segLen) {
-    buildRoadSegment(z);
+  for (let z=-CFG.road.segLen;z<CFG.road.segLen*4;z+=CFG.road.segLen) buildRoadSegment(z);
+
+  for (let i=0;i<5;i++) {
+    const m=coinPool.get();
+    const lane=Math.floor(Math.random()*CFG.road.lanes);
+    const laneW=CFG.road.width/CFG.road.lanes;
+    m.position.set(-CFG.road.width/2+laneW/2+lane*laneW,1.05,22+i*22);
+    coinData.set(m,{});
   }
 
-  // Initial coins
-  for (let i = 0; i < 5; i++) {
-    const m = coinPool.get();
-    const lane = Math.floor(Math.random() * CFG.road.lanes);
-    const laneW = CFG.road.width / CFG.road.lanes;
-    m.position.set(-CFG.road.width / 2 + laneW / 2 + lane * laneW, 1.05, 22 + i * 22);
-    coinData.set(m, {});
-  }
-
-  // Reset timers
-  policeSpawnTimer = trafficSpawnTimer = coinSpawnTimer = repairSpawnTimer = roadblockTimer = 0;
-  lightningTimer = 10; lightningFlash = 0;
-
-  // Reset camera
-  camera.position.set(0, 7, -14);
-  camera.fov = 62;
-  camera.updateProjectionMatrix();
-
-  scene.fog.density = 0.007;
+  policeSpawnTimer=trafficSpawnTimer=coinSpawnTimer=repairSpawnTimer=roadblockTimer=0;
+  lightningTimer=10; lightningFlash=0;
+  camera.position.set(0,7,-14); camera.fov=62; camera.updateProjectionMatrix();
+  scene.fog.density=0.007;
+  document.getElementById('msnHud').classList.add('hid');
+  document.getElementById('puDisp').innerHTML='';
 }
 
 function triggerGameOver() {
-  S.screen = 'gameover';
+  S.screen='gameover';
   document.getElementById('tCtrl').classList.remove('on');
   setHighScore(S.score);
-  document.getElementById('goD').textContent = S.dist;
-  document.getElementById('goS').textContent = S.score;
-  document.getElementById('goC').textContent = S.coins;
-  document.getElementById('goSp').textContent = Math.floor(S.topSpeed * 3.6);
-  document.getElementById('goCo').textContent = 'x' + S.maxCombo.toFixed(1);
-  document.getElementById('goX').textContent = S.sessionXP;
+  // Save replay if new best
+  if (S.score >= getHighScore() - 1) {
+    try { localStorage.setItem('hwyGhost6', JSON.stringify(S.replayBuffer.slice(-1000))); } catch(e) {}
+  }
+  addToLeaderboard({ score: S.score, dist: S.dist, car: CARS[S.selectedCar].name, time: new Date().toLocaleDateString() });
+  document.getElementById('goD').textContent=S.dist;
+  document.getElementById('goS').textContent=S.score;
+  document.getElementById('goC').textContent=S.coins;
+  document.getElementById('goSp').textContent=Math.floor(S.topSpeed*3.6);
+  document.getElementById('goCo').textContent='x'+S.maxCombo.toFixed(1);
+  document.getElementById('goX').textContent=S.sessionXP;
+  document.getElementById('goM').textContent=S.missionsCompleted;
+  document.getElementById('goB').textContent=BIOMES[S.currentBiome].name;
   showScreen('goOv');
-  spawnParticles(new THREE.Vector3(playerX, 1, playerZ), 0xff4400, 28, 3, 7);
-  spawnParticles(new THREE.Vector3(playerX, 1.5, playerZ), 0xffaa00, 18, 2, 5);
+  spawnParticles(new THREE.Vector3(playerX,1,playerZ),0xff4400,28,3,7);
+  spawnParticles(new THREE.Vector3(playerX,1.5,playerZ),0xffaa00,18,2,5);
   saveSave();
 }
 
 function togglePause() {
-  if (S.screen === 'playing') {
-    S.screen = 'paused';
-    showScreen('paOv');
-  } else if (S.screen === 'paused') {
-    S.screen = 'playing';
-    showScreen('hudOv');
-  }
+  if (S.screen==='playing') { S.screen='paused'; showScreen('paOv'); }
+  else if (S.screen==='paused') { S.screen='playing'; showScreen('hudOv'); }
 }
 
 function goToMenu() {
-  S.screen = 'menu';
+  S.screen='menu';
   document.getElementById('tCtrl').classList.remove('on');
-  document.getElementById('hsD').textContent = 'BEST: ' + getHighScore();
+  document.getElementById('hsD').textContent='BEST: '+getHighScore();
   showScreen('menuOv');
 }
 
 function openGarage() {
-  S.screen = 'garage';
-  document.getElementById('gCn').textContent = S.totalCoins;
-  document.getElementById('gLv').textContent = S.level;
-  renderGarage();
-  showScreen('garOv');
+  S.screen='garage'; document.getElementById('gCn').textContent=S.totalCoins; document.getElementById('gLv').textContent=S.level;
+  renderGarage(); showScreen('garOv');
 }
 
 function renderGarage() {
-  const grid = document.getElementById('cGrd');
-  grid.innerHTML = '';
+  const grid=document.getElementById('cGrd'); grid.innerHTML='';
   CARS.forEach(car => {
-    const unlocked = S.unlocked.includes(car.id);
-    const equipped = S.selectedCar === car.id;
-    const card = document.createElement('div');
-    card.className = 'cc' + (equipped ? ' sel' : '') + (!unlocked ? ' lk' : '');
-    const hex = '#' + car.col.toString(16).padStart(6, '0');
-    const stats = [
-      { l: 'SPEED', v: car.spd, c: '#00fff0' },
-      { l: 'HANDLE', v: car.han, c: '#ffaa00' },
-      { l: 'ARMOR', v: car.arm, c: '#ff4477' },
-      { l: 'NITRO', v: car.nit, c: '#0088ff' },
-    ];
-    card.innerHTML =
-      `<div class="cn" style="color:${hex}">${car.name}</div>` +
-      `<div class="cs" style="background:${hex}"></div>` +
-      stats.map(s => `<div class="sr"><span class="sl">${s.l}</span><div class="sb"><div class="sf" style="width:${Math.min(100, s.v * 64)}%;background:${s.c}"></div></div></div>`).join('') +
-      (!unlocked ? `<div class="cco">🔒 ${car.cost} coins</div>` : '') +
-      (unlocked && !equipped ? `<button class="bt s eqb" data-id="${car.id}">EQUIP</button>` : '') +
-      (equipped ? `<div class="ceq">EQUIPPED ✓</div>` : '') +
-      (!unlocked ? `<button class="bt s g byb" data-id="${car.id}">BUY (${car.cost})</button>` : '');
+    const unlocked=S.unlocked.includes(car.id);
+    const equipped=S.selectedCar===car.id;
+    const card=document.createElement('div');
+    card.className='cc'+(equipped?' sel':'')+(!unlocked?' lk':'');
+    const hex='#'+car.col.toString(16).padStart(6,'0');
+    const stats=[{l:'SPEED',v:car.spd,c:'#00fff0'},{l:'HANDLE',v:car.han,c:'#ffaa00'},{l:'ARMOR',v:car.arm,c:'#ff4477'},{l:'NITRO',v:car.nit,c:'#0088ff'}];
+    card.innerHTML=`<div class="cn" style="color:${hex}">${car.name}</div><div class="cs" style="background:${hex}"></div>`+stats.map(s=>`<div class="sr"><span class="sl">${s.l}</span><div class="sb"><div class="sf" style="width:${Math.min(100,s.v*64)}%;background:${s.c}"></div></div></div>`).join('')+(!unlocked?`<div class="cco">🔒 ${car.cost} coins</div>`:'')+(unlocked&&!equipped?`<button class="bt s eqb" data-id="${car.id}">EQUIP</button>`:'')+( equipped?`<div class="ceq">EQUIPPED ✓</div>`:'')+(!unlocked?`<button class="bt s g byb" data-id="${car.id}">BUY (${car.cost})</button>`:'');
     grid.appendChild(card);
   });
+  grid.querySelectorAll('.eqb').forEach(b=>b.addEventListener('click',()=>{ S.selectedCar=parseInt(b.dataset.id); saveSave(); renderGarage(); }));
+  grid.querySelectorAll('.byb').forEach(b=>b.addEventListener('click',()=>{ const id=parseInt(b.dataset.id); const car=CARS.find(c=>c.id===id); if (S.totalCoins>=car.cost){S.totalCoins-=car.cost;S.unlocked.push(id);S.selectedCar=id;saveSave();document.getElementById('gCn').textContent=S.totalCoins;renderGarage();}  }));
+}
 
-  grid.querySelectorAll('.eqb').forEach(b => b.addEventListener('click', () => {
-    S.selectedCar = parseInt(b.dataset.id);
-    saveSave();
-    renderGarage();
-  }));
-  grid.querySelectorAll('.byb').forEach(b => b.addEventListener('click', () => {
-    const id = parseInt(b.dataset.id);
-    const car = CARS.find(c => c.id === id);
-    if (S.totalCoins >= car.cost) {
-      S.totalCoins -= car.cost;
-      S.unlocked.push(id);
-      S.selectedCar = id;
-      saveSave();
-      document.getElementById('gCn').textContent = S.totalCoins;
-      renderGarage();
-    }
-  }));
+function openLeaderboard() {
+  S.screen='leaderboard';
+  const lb=getLeaderboard();
+  const list=document.getElementById('lbList');
+  list.innerHTML='';
+  if (lb.length===0) { list.innerHTML='<div style="font-family:Orbitron;color:#4a5580;text-align:center;margin:2em">No scores yet!</div>'; }
+  lb.forEach((entry, i) => {
+    const el=document.createElement('div');
+    el.className='lbEntry';
+    const medals=['🥇','🥈','🥉'];
+    el.innerHTML=`<span class="lbRank">${medals[i]||('#'+(i+1))}</span><span class="lbName">${entry.car||'Unknown'}</span><span class="lbScore">${entry.score}</span><span style="color:#4a5580;font-size:.6rem">${entry.time||''}</span>`;
+    list.appendChild(el);
+  });
+  showScreen('lbOv');
 }
 
 function openSettings() {
-  S.screen = 'settings';
-  showScreen('setOv');
-  updateSettingsUI();
+  S.screen='settings'; showScreen('setOv'); updateSettingsUI();
 }
-
 function updateSettingsUI() {
-  document.querySelectorAll('#qBg .bo').forEach(b => b.classList.toggle('av', parseInt(b.dataset.q) === QL));
-  document.querySelectorAll('#vBg .bo').forEach(b => b.classList.toggle('av', parseFloat(b.dataset.v) === S.vol));
-  document.querySelectorAll('#fBg .bo').forEach(b => b.classList.toggle('av', parseInt(b.dataset.f) === (S.showFps ? 1 : 0)));
+  document.querySelectorAll('#qBg .bo').forEach(b=>b.classList.toggle('av',parseInt(b.dataset.q)===QL));
+  document.querySelectorAll('#vBg .bo').forEach(b=>b.classList.toggle('av',parseFloat(b.dataset.v)===S.vol));
+  document.querySelectorAll('#fBg .bo').forEach(b=>b.classList.toggle('av',parseInt(b.dataset.f)===(S.showFps?1:0)));
 }
+document.querySelectorAll('#qBg .bo').forEach(b=>b.addEventListener('click',()=>{ QL=parseInt(b.dataset.q); bloomPass.strength=Q().bloomStr; bloomPass.enabled=Q().bloom; saveSave(); updateSettingsUI(); notify('Quality: '+['LOW','MED','HIGH'][QL],'#00fff0'); }));
+document.querySelectorAll('#vBg .bo').forEach(b=>b.addEventListener('click',()=>{ S.vol=parseFloat(b.dataset.v); saveSave(); updateSettingsUI(); }));
+document.querySelectorAll('#fBg .bo').forEach(b=>b.addEventListener('click',()=>{ S.showFps=parseInt(b.dataset.f)===1; document.getElementById('fpsC').classList.toggle('sh',S.showFps); saveSave(); updateSettingsUI(); }));
 
-document.querySelectorAll('#qBg .bo').forEach(b => b.addEventListener('click', () => {
-  QL = parseInt(b.dataset.q);
-  bloomPass.strength = Q().bloomStr;
-  bloomPass.enabled = Q().bloom;
-  saveSave(); updateSettingsUI();
-  notify('Quality: ' + ['LOW', 'MED', 'HIGH'][QL], '#00fff0');
-}));
-document.querySelectorAll('#vBg .bo').forEach(b => b.addEventListener('click', () => {
-  S.vol = parseFloat(b.dataset.v); saveSave(); updateSettingsUI();
-}));
-document.querySelectorAll('#fBg .bo').forEach(b => b.addEventListener('click', () => {
-  S.showFps = parseInt(b.dataset.f) === 1;
-  document.getElementById('fpsC').classList.toggle('sh', S.showFps);
-  saveSave(); updateSettingsUI();
-}));
-
-/* ═══════════════════════════════════════════
-   BUTTON BINDINGS
-═══════════════════════════════════════════ */
 document.getElementById('playB').addEventListener('click', startGame);
 document.getElementById('garB').addEventListener('click', openGarage);
+document.getElementById('lbB').addEventListener('click', openLeaderboard);
 document.getElementById('setB').addEventListener('click', openSettings);
 document.getElementById('gBk').addEventListener('click', goToMenu);
+document.getElementById('lbBk').addEventListener('click', goToMenu);
 document.getElementById('sBk').addEventListener('click', goToMenu);
 document.getElementById('paB').addEventListener('click', togglePause);
 document.getElementById('rsB').addEventListener('click', togglePause);
@@ -1843,84 +2002,85 @@ document.getElementById('rtB').addEventListener('click', startGame);
 document.getElementById('gmB').addEventListener('click', goToMenu);
 
 /* ═══════════════════════════════════════════
-   FPS COUNTER
+   FPS + AUTO QUALITY SCALER
 ═══════════════════════════════════════════ */
-const fpsSamples = [];
-let fpsTimer = 0;
-
+const fpsSamples=[];
+let fpsTimer=0, autoQualityTimer=0;
 function updateFPS(rawDt) {
-  fpsTimer += rawDt;
-  fpsSamples.push(rawDt);
-  if (fpsTimer > 0.5) {
-    fpsTimer = 0;
-    while (fpsSamples.length > 30) fpsSamples.shift();
-    const avg = fpsSamples.reduce((a, b) => a + b, 0) / fpsSamples.length;
-    document.getElementById('fpsC').textContent = Math.round(1 / Math.max(0.001, avg)) + ' FPS';
+  fpsTimer+=rawDt; fpsSamples.push(rawDt);
+  if (fpsTimer>.5) {
+    fpsTimer=0;
+    while (fpsSamples.length>30) fpsSamples.shift();
+    const avg=fpsSamples.reduce((a,b)=>a+b,0)/fpsSamples.length;
+    const fps=Math.round(1/Math.max(.001,avg));
+    document.getElementById('fpsC').textContent=fps+' FPS';
+    // Auto quality scaler: drop quality if FPS < 40
+    autoQualityTimer+=0.5;
+    if (autoQualityTimer>5) {
+      autoQualityTimer=0;
+      if (fps<40&&QL>0) { QL--; bloomPass.strength=Q().bloomStr; bloomPass.enabled=Q().bloom; notify('AUTO: Quality reduced','#4a5580'); }
+      else if (fps>60&&QL<2) {} // could upgrade but let's be conservative
+    }
   }
-  document.getElementById('fpsC').classList.toggle('sh', S.showFps);
+  document.getElementById('fpsC').classList.toggle('sh',S.showFps);
 }
 
 /* ═══════════════════════════════════════════
-   INITIALIZATION
+   INIT
 ═══════════════════════════════════════════ */
 initPools();
 initRain();
-
-// Build initial road so something visible on load
-for (let z = -CFG.road.segLen; z < CFG.road.segLen * 3; z += CFG.road.segLen) {
-  buildRoadSegment(z);
-}
-
-document.getElementById('hsD').textContent = 'BEST: ' + getHighScore();
-document.getElementById('fpsC').classList.toggle('sh', S.showFps);
+for (let z=-CFG.road.segLen;z<CFG.road.segLen*3;z+=CFG.road.segLen) buildRoadSegment(z);
+document.getElementById('hsD').textContent='BEST: '+getHighScore();
+document.getElementById('fpsC').classList.toggle('sh',S.showFps);
 showScreen('menuOv');
-
-// Visibility change → auto pause
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden && S.screen === 'playing') togglePause();
-});
+document.addEventListener('visibilitychange',()=>{ if (document.hidden&&S.screen==='playing') togglePause(); });
 
 /* ═══════════════════════════════════════════
    MAIN GAME LOOP
 ═══════════════════════════════════════════ */
-let lastTimestamp = 0;
-
+let lastTimestamp=0;
 function gameLoop(timestamp) {
   requestAnimationFrame(gameLoop);
-
-  const rawDt = Math.min((timestamp - lastTimestamp) / 1000, 0.05);
-  lastTimestamp = timestamp;
-
+  const rawDt=Math.min((timestamp-lastTimestamp)/1000,.05);
+  lastTimestamp=timestamp;
   updateFPS(rawDt);
   updateSlowMo(rawDt);
+  const dt=rawDt*S.slowScale;
 
-  const dt = rawDt * S.slowScale;
-
-  if (S.screen === 'playing') {
+  if (S.screen==='playing') {
     updatePlayer(dt);
     updatePolice(dt);
     updateTraffic(dt);
     updatePickups(dt);
+    updatePowerups(dt);
     updateRoadblocks(dt);
+    updateHelicopter(dt);
+    updateSpikeStrips(dt);
     updateParticles(dt);
     updateSkids(dt);
     updateRoad();
     updateWeather(dt);
     updateRain(dt);
+    updateDayNight(dt);
+    updateBiome(dt);
     updateCamera(dt);
+    updateMission(dt);
+    buildSpatialHash();
     checkCollisions();
     checkNearMisses();
     updateCombo(dt);
+    updateReplayRecording(dt);
+    updateGhostCar(dt);
     updateHUD();
     updateAudio();
-  } else if (S.screen === 'gameover') {
+  } else if (S.screen==='gameover') {
     updateParticles(rawDt);
     updateCamera(rawDt);
   }
 
   composer.render();
 }
-
 requestAnimationFrame(gameLoop);
 </script>
 </body>
